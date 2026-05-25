@@ -42,15 +42,25 @@ pub async fn configure_network(
     }
 
     // Remove old addresses that are no longer in metadata
-    if let Some(old_addrs) = env.addresses_by_mac.get(&link.mac) {
-        for (old_addr, _) in old_addrs {
-            if !new_addresses.contains_key(old_addr) {
-                remove_routing_policy_rule(env, old_addr, link).await?;
-                network::address_remove(&link.name, old_addr).await?;
-                tracing::info!("Removed address='{}' from link='{}' ifindex='{}'",
-                    old_addr, link.name, link.ifindex);
-            }
-        }
+    let stale_addrs: Vec<String> = env
+        .addresses_by_mac
+        .get(&link.mac)
+        .map(|old_addrs| {
+            old_addrs
+                .keys()
+                .filter(|addr| !new_addresses.contains_key(*addr))
+                .cloned()
+                .collect()
+        })
+        .unwrap_or_default();
+
+    for old_addr in stale_addrs {
+        remove_routing_policy_rule(env, &old_addr, link).await?;
+        network::address_remove(&link.name, &old_addr).await?;
+        tracing::info!(
+            "Removed address='{}' from link='{}' ifindex='{}'",
+            old_addr, link.name, link.ifindex
+        );
     }
 
     // Update environment state

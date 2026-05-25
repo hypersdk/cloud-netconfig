@@ -4,7 +4,9 @@
 use anyhow::{anyhow, Result};
 use futures::stream::TryStreamExt;
 use rtnetlink::new_connection;
-use rtnetlink::packet_route::route::{RouteAddress, RouteAttribute};
+use rtnetlink::packet_route::route::{RouteAddress, RouteAttribute, RouteMessage};
+use rtnetlink::packet_route::AddressFamily;
+use rtnetlink::RouteMessageBuilder;
 use std::net::Ipv4Addr;
 
 #[derive(Debug, Clone)]
@@ -16,18 +18,28 @@ pub struct Route {
 
 fn ipv4_from_route_address(addr: &RouteAddress) -> Option<String> {
     match addr {
-        RouteAddress::Inet(addr) => Some(addr.address.to_string()),
+        RouteAddress::Inet(addr) => Some(addr.to_string()),
         _ => None,
     }
 }
 
-pub async fn get_default_ipv4_gateway() -> Result<String> {
+async fn iter_ipv4_routes() -> Result<impl Iterator<Item = rtnetlink::packet_route::route::RouteMessage>> {
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
 
-    let mut route_stream = handle.route().get(rtnetlink::IpVersion::V4).execute();
+    let mut get_msg = RouteMessage::default();
+    get_msg.header.address_family = AddressFamily::Inet;
+    let mut route_stream = handle.route().get(get_msg).execute();
 
+    let mut routes = Vec::new();
     while let Some(route_msg) = route_stream.try_next().await? {
+        routes.push(route_msg);
+    }
+    Ok(routes.into_iter())
+}
+
+pub async fn get_default_ipv4_gateway() -> Result<String> {
+    for route_msg in iter_ipv4_routes().await? {
         if route_msg.header.destination_prefix_length != 0 {
             continue;
         }
@@ -45,12 +57,7 @@ pub async fn get_default_ipv4_gateway() -> Result<String> {
 }
 
 pub async fn get_default_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
-    let (connection, handle, _) = new_connection()?;
-    tokio::spawn(connection);
-
-    let mut route_stream = handle.route().get(rtnetlink::IpVersion::V4).execute();
-
-    while let Some(route_msg) = route_stream.try_next().await? {
+    for route_msg in iter_ipv4_routes().await? {
         if route_msg.header.destination_prefix_length != 0 {
             continue;
         }
@@ -76,12 +83,7 @@ pub async fn get_default_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
 }
 
 pub async fn get_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
-    let (connection, handle, _) = new_connection()?;
-    tokio::spawn(connection);
-
-    let mut route_stream = handle.route().get(rtnetlink::IpVersion::V4).execute();
-
-    while let Some(route_msg) = route_stream.try_next().await? {
+    for route_msg in iter_ipv4_routes().await? {
         let matches_link = route_msg.attributes.iter().any(|attr| {
             matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index)
         });
@@ -108,15 +110,14 @@ pub async fn route_add(route: &Route) -> Result<()> {
 
     let gw: Ipv4Addr = route.gw.parse()?;
 
-    let result = handle
-        .route()
-        .add()
-        .v4()
+    let route_msg = RouteMessageBuilder::<Ipv4Addr>::new()
+        .destination_prefix(Ipv4Addr::new(0, 0, 0, 0), 0)
         .gateway(gw)
         .output_interface(route.if_index)
-        .table(route.table)
-        .execute()
-        .await;
+        .table_id(route.table)
+        .build();
+
+    let result = handle.route().add(route_msg).execute().await;
 
     match result {
         Ok(_) => Ok(()),
@@ -137,15 +138,14 @@ pub async fn route_remove(route: &Route) -> Result<()> {
 
     let gw: Ipv4Addr = route.gw.parse()?;
 
-    handle
-        .route()
-        .del()
-        .v4()
+    let route_msg = RouteMessageBuilder::<Ipv4Addr>::new()
+        .destination_prefix(Ipv4Addr::new(0, 0, 0, 0), 0)
         .gateway(gw)
         .output_interface(route.if_index)
-        .table(route.table)
-        .execute()
-        .await?;
+        .table_id(route.table)
+        .build();
+
+    handle.route().del(route_msg).execute().await?;
 
     Ok(())
 }

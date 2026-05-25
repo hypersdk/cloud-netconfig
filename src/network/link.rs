@@ -5,6 +5,7 @@ use anyhow::{anyhow, Context, Result};
 use futures::stream::TryStreamExt;
 use rtnetlink::new_connection;
 use rtnetlink::packet_route::link::LinkAttribute;
+use rtnetlink::LinkUnspec;
 
 #[derive(Debug, Clone)]
 pub struct Link {
@@ -122,8 +123,7 @@ pub async fn link_set_oper_state_up(if_index: u32) -> Result<()> {
 
     handle
         .link()
-        .set(if_index)
-        .up()
+        .change(LinkUnspec::new_with_index(if_index).up().build())
         .execute()
         .await
         .context("Failed to bring link up")?;
@@ -137,8 +137,7 @@ pub async fn link_set_mtu(if_index: u32, mtu: u32) -> Result<()> {
 
     handle
         .link()
-        .set(if_index)
-        .mtu(mtu)
+        .change(LinkUnspec::new_with_index(if_index).mtu(mtu).build())
         .execute()
         .await
         .context("Failed to set MTU")?;

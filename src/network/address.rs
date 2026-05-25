@@ -5,6 +5,8 @@ use anyhow::{Context, Result};
 use futures::stream::TryStreamExt;
 use rtnetlink::new_connection;
 use rtnetlink::packet_route::address::AddressAttribute;
+use rtnetlink::packet_route::AddressFamily;
+use rtnetlink::packet_route::AddressMessage;
 use std::collections::HashMap;
 use std::net::IpAddr;
 
@@ -74,7 +76,7 @@ pub async fn get_ipv4_addresses(if_name: &str) -> Result<HashMap<String, bool>> 
     let mut addr_stream = handle.address().get().set_link_index_filter(if_index).execute();
 
     while let Some(addr_msg) = addr_stream.try_next().await? {
-        if addr_msg.header.family != 2 {
+        if addr_msg.header.family != AddressFamily::Inet {
             continue;
         }
 
@@ -106,9 +108,23 @@ pub async fn address_remove(name: &str, address: &str) -> Result<()> {
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
 
+    let mut message = AddressMessage::default();
+    message.header.index = if_index;
+    message.header.prefix_len = prefix_len;
+    match ip {
+        IpAddr::V4(v4) => {
+            message.header.family = AddressFamily::Inet;
+            message.attributes.push(AddressAttribute::Address(IpAddr::V4(v4)));
+        }
+        IpAddr::V6(v6) => {
+            message.header.family = AddressFamily::Inet6;
+            message.attributes.push(AddressAttribute::Address(IpAddr::V6(v6)));
+        }
+    }
+
     handle
         .address()
-        .del(if_index, ip, prefix_len)
+        .del(message)
         .execute()
         .await
         .context("Failed to remove address")?;

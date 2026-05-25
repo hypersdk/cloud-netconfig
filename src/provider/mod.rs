@@ -16,6 +16,7 @@ pub use watch::*;
 use crate::cloud::CloudProvider as CloudKind;
 use crate::network::{Links, Route, RoutingPolicyRule};
 use anyhow::Result;
+use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -25,6 +26,7 @@ pub trait CloudProvider: Send + Sync {
     async fn configure_network_from_cloud_meta(&self, env: &mut Environment) -> Result<()>;
     async fn save_cloud_metadata(&self) -> Result<()>;
     async fn link_save_cloud_metadata(&self, env: &Environment) -> Result<()>;
+    fn as_any(&self) -> &dyn Any;
 }
 
 pub struct Environment {
@@ -73,7 +75,12 @@ pub async fn acquire_cloud_metadata(env: &mut Environment) -> Result<()> {
 
 pub async fn configure_network_metadata(env: &mut Environment) -> Result<()> {
     let _lock = env.mutex.lock().unwrap();
-    env.provider.configure_network_from_cloud_meta(env).await
+    match env.kind {
+        CloudKind::Azure => azure::configure_network(env).await,
+        CloudKind::AWS => ec2::configure_network(env).await,
+        CloudKind::GCP => gcp::configure_network(env).await,
+        _ => Ok(()),
+    }
 }
 
 pub async fn save_metadata(env: &Environment) -> Result<()> {

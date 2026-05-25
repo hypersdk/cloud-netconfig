@@ -116,6 +116,34 @@ impl GCP {
     }
 }
 
+pub async fn configure_network(env: &mut super::Environment) -> Result<()> {
+    let gcp = env
+        .provider
+        .as_ref()
+        .as_any()
+        .downcast_ref::<GCP>()
+        .expect("gcp provider");
+    gcp_configure_network(gcp, env).await
+}
+
+async fn gcp_configure_network(gcp: &GCP, env: &mut super::Environment) -> Result<()> {
+    let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
+    for mac in macs {
+        let addresses = gcp.parse_ipv4_addresses_from_metadata_by_mac(&mac);
+        if addresses.is_empty() {
+            continue;
+        }
+        let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
+            continue;
+        };
+        let gateway = gcp.parse_ipv4_gateway_from_metadata_by_mac(&mac);
+        let mtu = gcp.parse_link_mtu_from_metadata_by_mac(&mac);
+
+        super::network::configure_network(env, &link, addresses, gateway, mtu).await?;
+    }
+    Ok(())
+}
+
 #[async_trait::async_trait]
 impl super::CloudProvider for GCP {
     async fn fetch_cloud_metadata(&mut self) -> Result<()> {
@@ -131,21 +159,11 @@ impl super::CloudProvider for GCP {
     }
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
-        let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
-        for mac in macs {
-            let addresses = self.parse_ipv4_addresses_from_metadata_by_mac(&mac);
-            if addresses.is_empty() {
-                continue;
-            }
-            let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
-                continue;
-            };
-            let gateway = self.parse_ipv4_gateway_from_metadata_by_mac(&mac);
-            let mtu = self.parse_link_mtu_from_metadata_by_mac(&mac);
+        gcp_configure_network(self, env).await
+    }
 
-            super::network::configure_network(env, &link, addresses, gateway, mtu).await?;
-        }
-        Ok(())
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 
     async fn save_cloud_metadata(&self) -> Result<()> {

@@ -61,6 +61,38 @@ impl EC2 {
     }
 }
 
+pub async fn configure_network(env: &mut super::Environment) -> Result<()> {
+    let ec2 = env
+        .provider
+        .as_ref()
+        .as_any()
+        .downcast_ref::<EC2>()
+        .expect("ec2 provider");
+    ec2_configure_network(ec2, env).await
+}
+
+async fn ec2_configure_network(ec2: &EC2, env: &mut super::Environment) -> Result<()> {
+    let macs: Vec<String> = ec2.macs.keys().cloned().collect();
+    for mac in macs {
+        let Some(mac_data) = ec2.macs.get(&mac) else {
+            continue;
+        };
+        let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
+            continue;
+        };
+        let addresses_str = mac_data.local_ipv4s.join(",");
+        let addresses = ec2.parse_ipv4_addresses_from_metadata(
+            &addresses_str,
+            &mac_data.subnet_ipv4_cidr_block,
+        );
+
+        if !addresses.is_empty() {
+            super::network::configure_network(env, &link, addresses, None, None).await?;
+        }
+    }
+    Ok(())
+}
+
 #[async_trait::async_trait]
 impl super::CloudProvider for EC2 {
     async fn fetch_cloud_metadata(&mut self) -> Result<()> {
@@ -100,25 +132,11 @@ impl super::CloudProvider for EC2 {
     }
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
-        let macs: Vec<String> = self.macs.keys().cloned().collect();
-        for mac in macs {
-            let Some(mac_data) = self.macs.get(&mac) else {
-                continue;
-            };
-            let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
-                continue;
-            };
-            let addresses_str = mac_data.local_ipv4s.join(",");
-            let addresses = self.parse_ipv4_addresses_from_metadata(
-                &addresses_str,
-                &mac_data.subnet_ipv4_cidr_block,
-            );
+        ec2_configure_network(self, env).await
+    }
 
-            if !addresses.is_empty() {
-                super::network::configure_network(env, &link, addresses, None, None).await?;
-            }
-        }
-        Ok(())
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 
     async fn save_cloud_metadata(&self) -> Result<()> {

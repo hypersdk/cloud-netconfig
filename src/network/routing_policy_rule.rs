@@ -4,8 +4,8 @@
 use anyhow::Result;
 use futures::stream::TryStreamExt;
 use rtnetlink::new_connection;
-use rtnetlink::packet_route::rule::RuleAttribute;
-use std::net::IpAddr;
+use rtnetlink::packet_route::rule::{RuleAction, RuleAttribute, RuleMessage};
+use std::net::Ipv4Addr;
 
 #[derive(Debug, Clone)]
 pub struct RoutingPolicyRule {
@@ -27,21 +27,19 @@ pub async fn routing_policy_rule_add(rule: &RoutingPolicyRule) -> Result<()> {
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
 
-    let mut rule_request = handle.rule().add();
+    let mut request = handle.rule().add().v4().table_id(rule.table).action(RuleAction::ToTable);
 
     if let Some(ref from) = rule.from {
-        let ip: IpAddr = from.parse()?;
-        rule_request = rule_request.source_prefix(ip, 32);
+        let ip: Ipv4Addr = from.parse()?;
+        request = request.source_prefix(ip, 32);
     }
 
     if let Some(ref to) = rule.to {
-        let ip: IpAddr = to.parse()?;
-        rule_request = rule_request.destination_prefix(ip, 32);
+        let ip: Ipv4Addr = to.parse()?;
+        request = request.destination_prefix(ip, 32);
     }
 
-    rule_request = rule_request.table(rule.table);
-
-    let result = rule_request.execute().await;
+    let result = request.execute().await;
 
     match result {
         Ok(_) => Ok(()),
@@ -60,20 +58,29 @@ pub async fn routing_policy_rule_remove(rule: &RoutingPolicyRule) -> Result<()> 
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
 
-    let mut rule_request = handle.rule().del();
+    let mut message = RuleMessage::default();
+    message.header.family = rtnetlink::packet_route::AddressFamily::Inet;
+    message.header.action = RuleAction::ToTable;
+
+    if rule.table > 255 {
+        message.attributes.push(RuleAttribute::Table(rule.table));
+    } else {
+        message.header.table = rule.table as u8;
+    }
 
     if let Some(ref from) = rule.from {
-        let ip: IpAddr = from.parse()?;
-        rule_request = rule_request.source_prefix(ip, 32);
+        let ip: Ipv4Addr = from.parse()?;
+        message.header.src_len = 32;
+        message.attributes.push(RuleAttribute::Source(ip.into()));
     }
 
     if let Some(ref to) = rule.to {
-        let ip: IpAddr = to.parse()?;
-        rule_request = rule_request.destination_prefix(ip, 32);
+        let ip: Ipv4Addr = to.parse()?;
+        message.header.dst_len = 32;
+        message.attributes.push(RuleAttribute::Destination(ip.into()));
     }
 
-    rule_request = rule_request.table(rule.table);
-    rule_request.execute().await?;
+    handle.rule().del(message).execute().await?;
 
     Ok(())
 }

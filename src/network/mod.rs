@@ -12,7 +12,6 @@ pub use route::*;
 pub use routing_policy_rule::*;
 
 use anyhow::Result;
-use std::net::Ipv4Addr;
 
 pub async fn configure_by_index(if_index: u32) -> Result<()> {
     let gw = get_ipv4_gateway(if_index).await?;

@@ -93,6 +93,31 @@ impl Azure {
     }
 }
 
+pub async fn configure_network(env: &mut super::Environment) -> Result<()> {
+    let azure = env
+        .provider
+        .as_ref()
+        .as_any()
+        .downcast_ref::<Azure>()
+        .expect("azure provider");
+    azure_configure_network(azure, env).await
+}
+
+async fn azure_configure_network(azure: &Azure, env: &mut super::Environment) -> Result<()> {
+    let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
+    for mac in macs {
+        let addresses = azure.parse_ipv4_addresses_from_metadata_by_mac(&mac);
+        if addresses.is_empty() {
+            continue;
+        }
+        let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
+            continue;
+        };
+        super::network::configure_network(env, &link, addresses, None, None).await?;
+    }
+    Ok(())
+}
+
 #[async_trait::async_trait]
 impl super::CloudProvider for Azure {
     async fn fetch_cloud_metadata(&mut self) -> Result<()> {
@@ -109,18 +134,11 @@ impl super::CloudProvider for Azure {
     }
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
-        let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
-        for mac in macs {
-            let addresses = self.parse_ipv4_addresses_from_metadata_by_mac(&mac);
-            if addresses.is_empty() {
-                continue;
-            }
-            let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
-                continue;
-            };
-            super::network::configure_network(env, &link, addresses, None, None).await?;
-        }
-        Ok(())
+        azure_configure_network(self, env).await
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 
     async fn save_cloud_metadata(&self) -> Result<()> {
