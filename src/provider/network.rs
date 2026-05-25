@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use crate::network::{self, Link, Route, RoutingPolicyRule};
@@ -12,7 +11,11 @@ pub async fn configure_network(
     gateway: Option<String>,
     mtu: Option<u32>,
 ) -> Result<()> {
-    tracing::info!("Link='{}' ifindex='{}' configuring network ...", link.name, link.ifindex);
+    tracing::info!(
+        "Link='{}' ifindex='{}' configuring network ...",
+        link.name,
+        link.ifindex
+    );
 
     // Bring link up if needed
     if link.oper_state != "Up" {
@@ -29,8 +32,12 @@ pub async fn configure_network(
     // Configure addresses
     for (addr, _) in &new_addresses {
         network::address_set(&link.name, addr).await?;
-        tracing::info!("Successfully added address='{}' on link='{}' ifindex='{}'",
-            addr, link.name, link.ifindex);
+        tracing::info!(
+            "Successfully added address='{}' on link='{}' ifindex='{}'",
+            addr,
+            link.name,
+            link.ifindex
+        );
     }
 
     // Configure route
@@ -59,7 +66,9 @@ pub async fn configure_network(
         network::address_remove(&link.name, &old_addr).await?;
         tracing::info!(
             "Removed address='{}' from link='{}' ifindex='{}'",
-            old_addr, link.name, link.ifindex
+            old_addr,
+            link.name,
+            link.ifindex
         );
     }
 
@@ -92,7 +101,10 @@ async fn configure_route(
 
     tracing::info!(
         "Successfully added default gateway='{}' for link='{}' ifindex='{}' table='{}'",
-        gw, link.name, link.ifindex, table
+        gw,
+        link.name,
+        link.ifindex,
+        table
     );
 
     Ok(())
@@ -114,7 +126,8 @@ async fn configure_routing_policy_rule(
     };
 
     network::routing_policy_rule_add(&from_rule).await?;
-    env.routing_rules_by_address_from.insert(ip_str.to_string(), from_rule.clone());
+    env.routing_rules_by_address_from
+        .insert(ip_str.to_string(), from_rule.clone());
 
     tracing::info!(
         "Successfully added routing policy rule 'from' in route table='{}' for link='{}' ifindex='{}'",
@@ -129,7 +142,8 @@ async fn configure_routing_policy_rule(
     };
 
     network::routing_policy_rule_add(&to_rule).await?;
-    env.routing_rules_by_address_to.insert(ip_str.to_string(), to_rule);
+    env.routing_rules_by_address_to
+        .insert(ip_str.to_string(), to_rule);
 
     tracing::info!(
         "Successfully added routing policy rule 'to' in route table='{}' for link='{}' ifindex='{}'",
@@ -168,11 +182,13 @@ async fn remove_routing_policy_rule(
 }
 
 fn is_rules_by_table_empty(env: &super::Environment, table: u32) -> bool {
-    let has_from = env.routing_rules_by_address_from
+    let has_from = env
+        .routing_rules_by_address_from
         .values()
         .any(|rule| rule.table == table);
 
-    let has_to = env.routing_rules_by_address_to
+    let has_to = env
+        .routing_rules_by_address_to
         .values()
         .any(|rule| rule.table == table);
 

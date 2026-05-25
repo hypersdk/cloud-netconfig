@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::Result;
@@ -46,7 +45,11 @@ impl EC2 {
         Ok(text)
     }
 
-    fn parse_ipv4_addresses_from_metadata(&self, addresses: &str, cidr: &str) -> HashMap<String, bool> {
+    fn parse_ipv4_addresses_from_metadata(
+        &self,
+        addresses: &str,
+        cidr: &str,
+    ) -> HashMap<String, bool> {
         let mut result = HashMap::new();
         let prefix = cidr.split('/').nth(1).unwrap_or("24");
 
@@ -61,17 +64,7 @@ impl EC2 {
     }
 }
 
-pub async fn configure_network(env: &mut super::Environment) -> Result<()> {
-    let ec2 = env
-        .provider
-        .as_ref()
-        .as_any()
-        .downcast_ref::<EC2>()
-        .expect("ec2 provider");
-    ec2_configure_network(ec2, env).await
-}
-
-async fn ec2_configure_network(ec2: &EC2, env: &mut super::Environment) -> Result<()> {
+pub(super) async fn ec2_configure_network(ec2: &EC2, env: &mut super::Environment) -> Result<()> {
     let macs: Vec<String> = ec2.macs.keys().cloned().collect();
     for mac in macs {
         let Some(mac_data) = ec2.macs.get(&mac) else {
@@ -81,10 +74,8 @@ async fn ec2_configure_network(ec2: &EC2, env: &mut super::Environment) -> Resul
             continue;
         };
         let addresses_str = mac_data.local_ipv4s.join(",");
-        let addresses = ec2.parse_ipv4_addresses_from_metadata(
-            &addresses_str,
-            &mac_data.subnet_ipv4_cidr_block,
-        );
+        let addresses = ec2
+            .parse_ipv4_addresses_from_metadata(&addresses_str, &mac_data.subnet_ipv4_cidr_block);
 
         if !addresses.is_empty() {
             super::network::configure_network(env, &link, addresses, None, None).await?;
@@ -100,7 +91,9 @@ impl super::CloudProvider for EC2 {
         // In a full implementation, this would recursively traverse the metadata tree
 
         // Fetch MACs
-        let macs_text = self.fetch_metadata_simple("network/interfaces/macs/").await?;
+        let macs_text = self
+            .fetch_metadata_simple("network/interfaces/macs/")
+            .await?;
         let macs: Vec<String> = macs_text
             .lines()
             .filter(|line| !line.is_empty())
@@ -115,7 +108,10 @@ impl super::CloudProvider for EC2 {
                 .unwrap_or_default();
 
             let subnet_cidr = self
-                .fetch_metadata_simple(&format!("network/interfaces/macs/{}/subnet-ipv4-cidr-block", mac))
+                .fetch_metadata_simple(&format!(
+                    "network/interfaces/macs/{}/subnet-ipv4-cidr-block",
+                    mac
+                ))
                 .await
                 .unwrap_or_else(|_| "10.0.0.0/24".to_string());
 
@@ -133,10 +129,6 @@ impl super::CloudProvider for EC2 {
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
         ec2_configure_network(self, env).await
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
     }
 
     async fn save_cloud_metadata(&self) -> Result<()> {

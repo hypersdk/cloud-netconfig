@@ -47,6 +47,7 @@ futures = "0.3"
 
 # System operations
 nix = { version = "0.27", features = ["user", "process", "signal"] }
+libc = "0.2"
 caps = "0.5"
 
 # Error handling

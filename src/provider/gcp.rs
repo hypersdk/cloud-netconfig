@@ -1,11 +1,11 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-const GCP_METADATA_ENDPOINT: &str = "http://metadata.google.internal/computeMetadata/v1/?recursive=true";
+const GCP_METADATA_ENDPOINT: &str =
+    "http://metadata.google.internal/computeMetadata/v1/?recursive=true";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GCPMetadata {
@@ -116,17 +116,7 @@ impl GCP {
     }
 }
 
-pub async fn configure_network(env: &mut super::Environment) -> Result<()> {
-    let gcp = env
-        .provider
-        .as_ref()
-        .as_any()
-        .downcast_ref::<GCP>()
-        .expect("gcp provider");
-    gcp_configure_network(gcp, env).await
-}
-
-async fn gcp_configure_network(gcp: &GCP, env: &mut super::Environment) -> Result<()> {
+pub(super) async fn gcp_configure_network(gcp: &GCP, env: &mut super::Environment) -> Result<()> {
     let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
     for mac in macs {
         let addresses = gcp.parse_ipv4_addresses_from_metadata_by_mac(&mac);
@@ -160,10 +150,6 @@ impl super::CloudProvider for GCP {
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
         gcp_configure_network(self, env).await
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
     }
 
     async fn save_cloud_metadata(&self) -> Result<()> {

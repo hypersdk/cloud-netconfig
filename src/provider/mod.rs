@@ -16,7 +16,6 @@ pub use watch::*;
 use crate::cloud::CloudProvider as CloudKind;
 use crate::network::{Links, Route, RoutingPolicyRule};
 use anyhow::Result;
-use std::any::Any;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -26,12 +25,43 @@ pub trait CloudProvider: Send + Sync {
     async fn configure_network_from_cloud_meta(&self, env: &mut Environment) -> Result<()>;
     async fn save_cloud_metadata(&self) -> Result<()>;
     async fn link_save_cloud_metadata(&self, env: &Environment) -> Result<()>;
-    fn as_any(&self) -> &dyn Any;
+}
+
+pub enum Provider {
+    Azure(Azure),
+    Aws(EC2),
+    Gcp(GCP),
+}
+
+impl Provider {
+    async fn fetch_cloud_metadata(&mut self) -> Result<()> {
+        match self {
+            Provider::Azure(p) => p.fetch_cloud_metadata().await,
+            Provider::Aws(p) => p.fetch_cloud_metadata().await,
+            Provider::Gcp(p) => p.fetch_cloud_metadata().await,
+        }
+    }
+
+    async fn save_cloud_metadata(&self) -> Result<()> {
+        match self {
+            Provider::Azure(p) => p.save_cloud_metadata().await,
+            Provider::Aws(p) => p.save_cloud_metadata().await,
+            Provider::Gcp(p) => p.save_cloud_metadata().await,
+        }
+    }
+
+    async fn link_save_cloud_metadata(&self, env: &Environment) -> Result<()> {
+        match self {
+            Provider::Azure(p) => p.link_save_cloud_metadata(env).await,
+            Provider::Aws(p) => p.link_save_cloud_metadata(env).await,
+            Provider::Gcp(p) => p.link_save_cloud_metadata(env).await,
+        }
+    }
 }
 
 pub struct Environment {
     pub kind: CloudKind,
-    pub provider: Box<dyn CloudProvider>,
+    pub provider: Provider,
     pub links: Links,
     pub route_table: u32,
     pub addresses_by_mac: HashMap<String, HashMap<String, bool>>,
@@ -43,10 +73,10 @@ pub struct Environment {
 
 impl Environment {
     pub fn new(kind: CloudKind, config: &crate::conf::Config) -> Option<Self> {
-        let provider: Box<dyn CloudProvider> = match kind {
-            CloudKind::Azure => Box::new(Azure::new(&config.cloud.azure)),
-            CloudKind::AWS => Box::new(EC2::new(&config.cloud.aws)),
-            CloudKind::GCP => Box::new(GCP::new(&config.cloud.gcp)),
+        let provider = match kind {
+            CloudKind::Azure => Provider::Azure(Azure::new(&config.cloud.azure)),
+            CloudKind::AWS => Provider::Aws(EC2::new(&config.cloud.aws)),
+            CloudKind::GCP => Provider::Gcp(GCP::new(&config.cloud.gcp)),
             _ => return None,
         };
 
@@ -75,11 +105,10 @@ pub async fn acquire_cloud_metadata(env: &mut Environment) -> Result<()> {
 
 pub async fn configure_network_metadata(env: &mut Environment) -> Result<()> {
     let _lock = env.mutex.lock().unwrap();
-    match env.kind {
-        CloudKind::Azure => azure::configure_network(env).await,
-        CloudKind::AWS => ec2::configure_network(env).await,
-        CloudKind::GCP => gcp::configure_network(env).await,
-        _ => Ok(()),
+    match &env.provider {
+        Provider::Azure(azure) => azure_configure_network(azure, env).await,
+        Provider::Aws(ec2) => ec2_configure_network(ec2, env).await,
+        Provider::Gcp(gcp) => gcp_configure_network(gcp, env).await,
     }
 }
 

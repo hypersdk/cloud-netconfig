@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::{anyhow, Result};
@@ -23,7 +22,8 @@ fn ipv4_from_route_address(addr: &RouteAddress) -> Option<String> {
     }
 }
 
-async fn iter_ipv4_routes() -> Result<impl Iterator<Item = rtnetlink::packet_route::route::RouteMessage>> {
+async fn iter_ipv4_routes(
+) -> Result<impl Iterator<Item = rtnetlink::packet_route::route::RouteMessage>> {
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
 
@@ -62,9 +62,10 @@ pub async fn get_default_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
             continue;
         }
 
-        let matches_link = route_msg.attributes.iter().any(|attr| {
-            matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index)
-        });
+        let matches_link = route_msg
+            .attributes
+            .iter()
+            .any(|attr| matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index));
 
         if !matches_link {
             continue;
@@ -84,9 +85,10 @@ pub async fn get_default_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
 
 pub async fn get_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
     for route_msg in iter_ipv4_routes().await? {
-        let matches_link = route_msg.attributes.iter().any(|attr| {
-            matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index)
-        });
+        let matches_link = route_msg
+            .attributes
+            .iter()
+            .any(|attr| matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index));
 
         if !matches_link {
             continue;

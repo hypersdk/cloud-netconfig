@@ -1,11 +1,11 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::{Context, Result};
-use nix::unistd::{Uid, Gid, User, setuid, setgid};
+use caps::{CapSet, Capability};
+use nix::unistd::{setgid, setuid, Gid, Uid, User};
+use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
-use caps::{Capability, CapSet};
 
 pub struct Credential {
     pub uid: Uid,
@@ -14,10 +14,8 @@ pub struct Credential {
 
 pub fn get_user_credentials(username: Option<&str>) -> Result<Credential> {
     let user = match username {
-        Some(name) => User::from_name(name)?
-            .context(format!("User '{}' not found", name))?,
-        None => User::from_uid(Uid::current())?
-            .context("Current user not found")?,
+        Some(name) => User::from_name(name)?.context(format!("User '{}' not found", name))?,
+        None => User::from_uid(Uid::current())?.context("Current user not found")?,
     };
 
     Ok(Credential {
@@ -27,10 +25,8 @@ pub fn get_user_credentials(username: Option<&str>) -> Result<Credential> {
 }
 
 pub fn switch_user(cred: &Credential) -> Result<()> {
-    setgid(cred.gid)
-        .context("Failed to set GID")?;
-    setuid(cred.uid)
-        .context("Failed to set UID")?;
+    setgid(cred.gid).context("Failed to set GID")?;
+    setuid(cred.uid).context("Failed to set UID")?;
     Ok(())
 }
 
@@ -41,13 +37,14 @@ pub fn apply_capability(_cred: &Credential) -> Result<()> {
     caps::clear(None, CapSet::Inheritable)?;
 
     // Set CAP_NET_ADMIN
-    caps::set(None, CapSet::Permitted, &[Capability::CAP_NET_ADMIN])?;
-    caps::set(None, CapSet::Effective, &[Capability::CAP_NET_ADMIN])?;
-    caps::set(None, CapSet::Inheritable, &[Capability::CAP_NET_ADMIN])?;
+    let net_admin = HashSet::from([Capability::CAP_NET_ADMIN]);
+    caps::set(None, CapSet::Permitted, &net_admin)?;
+    caps::set(None, CapSet::Effective, &net_admin)?;
+    caps::set(None, CapSet::Inheritable, &net_admin)?;
 
     // Set ambient capabilities (requires CAP_SETPCAP)
     if caps::has_cap(None, CapSet::Permitted, Capability::CAP_SETPCAP).unwrap_or(false) {
-        caps::set(None, CapSet::Ambient, &[Capability::CAP_NET_ADMIN])?;
+        caps::set(None, CapSet::Ambient, &net_admin)?;
     }
 
     Ok(())
@@ -112,7 +109,11 @@ fn chown(path: &str, uid: u32, gid: u32) -> Result<()> {
     unsafe {
         let ret = libc::chown(c_path.as_ptr(), uid, gid);
         if ret != 0 {
-            return Err(anyhow::anyhow!("Failed to chown {}: {}", path, std::io::Error::last_os_error()));
+            return Err(anyhow::anyhow!(
+                "Failed to chown {}: {}",
+                path,
+                std::io::Error::last_os_error()
+            ));
         }
     }
     Ok(())

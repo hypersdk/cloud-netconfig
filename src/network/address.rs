@@ -1,12 +1,11 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::{Context, Result};
 use futures::stream::TryStreamExt;
 use rtnetlink::new_connection;
 use rtnetlink::packet_route::address::AddressAttribute;
+use rtnetlink::packet_route::address::AddressMessage;
 use rtnetlink::packet_route::AddressFamily;
-use rtnetlink::packet_route::AddressMessage;
 use std::collections::HashMap;
 use std::net::IpAddr;
 
@@ -16,7 +15,9 @@ pub async fn address_add(if_index: u32, address: &str) -> Result<()> {
 
     let parts: Vec<&str> = address.split('/').collect();
     if parts.len() != 2 {
-        return Err(anyhow::anyhow!("Invalid address format, expected CIDR notation"));
+        return Err(anyhow::anyhow!(
+            "Invalid address format, expected CIDR notation"
+        ));
     }
 
     let ip: IpAddr = parts[0].parse()?;
@@ -46,7 +47,9 @@ pub async fn address_set(name: &str, address: &str) -> Result<()> {
 
     let parts: Vec<&str> = address.split('/').collect();
     if parts.len() != 2 {
-        return Err(anyhow::anyhow!("Invalid address format, expected CIDR notation"));
+        return Err(anyhow::anyhow!(
+            "Invalid address format, expected CIDR notation"
+        ));
     }
 
     let ip: IpAddr = parts[0].parse()?;
@@ -73,7 +76,11 @@ pub async fn get_ipv4_addresses(if_name: &str) -> Result<HashMap<String, bool>> 
     tokio::spawn(connection);
 
     let mut addresses = HashMap::new();
-    let mut addr_stream = handle.address().get().set_link_index_filter(if_index).execute();
+    let mut addr_stream = handle
+        .address()
+        .get()
+        .set_link_index_filter(if_index)
+        .execute();
 
     while let Some(addr_msg) = addr_stream.try_next().await? {
         if addr_msg.header.family != AddressFamily::Inet {
@@ -99,7 +106,9 @@ pub async fn address_remove(name: &str, address: &str) -> Result<()> {
 
     let parts: Vec<&str> = address.split('/').collect();
     if parts.len() != 2 {
-        return Err(anyhow::anyhow!("Invalid address format, expected CIDR notation"));
+        return Err(anyhow::anyhow!(
+            "Invalid address format, expected CIDR notation"
+        ));
     }
 
     let ip: IpAddr = parts[0].parse()?;
@@ -114,11 +123,15 @@ pub async fn address_remove(name: &str, address: &str) -> Result<()> {
     match ip {
         IpAddr::V4(v4) => {
             message.header.family = AddressFamily::Inet;
-            message.attributes.push(AddressAttribute::Address(IpAddr::V4(v4)));
+            message
+                .attributes
+                .push(AddressAttribute::Address(IpAddr::V4(v4)));
         }
         IpAddr::V6(v6) => {
             message.header.family = AddressFamily::Inet6;
-            message.attributes.push(AddressAttribute::Address(IpAddr::V6(v6)));
+            message
+                .attributes
+                .push(AddressAttribute::Address(IpAddr::V6(v6)));
         }
     }
 

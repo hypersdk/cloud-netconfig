@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use std::fs;
@@ -54,7 +53,8 @@ pub fn detect_cloud() -> CloudProvider {
 
 pub fn detect_azure() -> bool {
     let vendor = fs::read_to_string("/sys/class/dmi/id/sys_vendor").unwrap_or_default();
-    let chassis_asset_tag = fs::read_to_string("/sys/class/dmi/id/chassis_asset_tag").unwrap_or_default();
+    let chassis_asset_tag =
+        fs::read_to_string("/sys/class/dmi/id/chassis_asset_tag").unwrap_or_default();
 
     let has_vendor = vendor.contains("Microsoft Corporation");
     let has_chassis_asset_tag = chassis_asset_tag.contains("7783-7084-3265-9085-8269-3286-77");
@@ -65,7 +65,8 @@ pub fn detect_azure() -> bool {
 pub fn detect_ec2() -> bool {
     let hypervisor_uuid = fs::read_to_string("/sys/hypervisor/uuid").unwrap_or_default();
     let product_uuid = fs::read_to_string("/sys/class/dmi/id/product_uuid").unwrap_or_default();
-    let product_version = fs::read_to_string("/sys/class/dmi/id/product_version").unwrap_or_default();
+    let product_version =
+        fs::read_to_string("/sys/class/dmi/id/product_version").unwrap_or_default();
 
     hypervisor_uuid.starts_with("ec2")
         || product_uuid.starts_with("ec2")
@@ -88,6 +89,7 @@ pub fn detect_digital_ocean() -> bool {
 }
 
 pub fn detect_oracle() -> bool {
-    let chassis_asset_tag = fs::read_to_string("/sys/class/dmi/id/chassis_asset_tag").unwrap_or_default();
+    let chassis_asset_tag =
+        fs::read_to_string("/sys/class/dmi/id/chassis_asset_tag").unwrap_or_default();
     chassis_asset_tag.contains("OracleCloud")
 }

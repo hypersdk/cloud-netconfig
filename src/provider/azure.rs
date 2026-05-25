@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::Result;
@@ -93,17 +92,10 @@ impl Azure {
     }
 }
 
-pub async fn configure_network(env: &mut super::Environment) -> Result<()> {
-    let azure = env
-        .provider
-        .as_ref()
-        .as_any()
-        .downcast_ref::<Azure>()
-        .expect("azure provider");
-    azure_configure_network(azure, env).await
-}
-
-async fn azure_configure_network(azure: &Azure, env: &mut super::Environment) -> Result<()> {
+pub(super) async fn azure_configure_network(
+    azure: &Azure,
+    env: &mut super::Environment,
+) -> Result<()> {
     let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
     for mac in macs {
         let addresses = azure.parse_ipv4_addresses_from_metadata_by_mac(&mac);
@@ -123,11 +115,7 @@ impl super::CloudProvider for Azure {
     async fn fetch_cloud_metadata(&mut self) -> Result<()> {
         let url = format!("{}?api-version={}", AZURE_METADATA_BASE, self.api_version);
         let client = reqwest::Client::new();
-        let response = client
-            .get(&url)
-            .header("Metadata", "true")
-            .send()
-            .await?;
+        let response = client.get(&url).header("Metadata", "true").send().await?;
 
         self.metadata = Some(response.json::<AzureMetadata>().await?);
         Ok(())
@@ -135,10 +123,6 @@ impl super::CloudProvider for Azure {
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
         azure_configure_network(self, env).await
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
     }
 
     async fn save_cloud_metadata(&self) -> Result<()> {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-use serde::Deserialize;
 use anyhow::{Context, Result};
+use serde::Deserialize;
 use std::time::Duration;
 use tracing::Level;
 
@@ -316,9 +316,7 @@ impl Default for AwsCloudConfig {
 
 impl Default for GcpCloudConfig {
     fn default() -> Self {
-        Self {
-            recursive: true,
-        }
+        Self { recursive: true }
     }
 }
 
@@ -375,8 +373,8 @@ impl Config {
             }
         };
 
-        let config: Config = serde_yaml::from_str(&config_content)
-            .context("Failed to parse config file")?;
+        let config: Config =
+            serde_yaml::from_str(&config_content).context("Failed to parse config file")?;
 
         // Validate configuration
         config.validate()?;
@@ -394,8 +392,7 @@ impl Config {
             .context("Invalid metadata request_timeout")?;
 
         // Validate watchdog interval
-        parse_duration(&self.security.watchdog.interval)
-            .context("Invalid watchdog interval")?;
+        parse_duration(&self.security.watchdog.interval).context("Invalid watchdog interval")?;
 
         // Validate port
         if self.server.listen.port == 0 {
@@ -413,25 +410,25 @@ impl Config {
             "warn" | "warning" => Level::WARN,
             "error" => Level::ERROR,
             _ => {
-                tracing::warn!("Unknown log level '{}', defaulting to info", self.logging.level);
+                tracing::warn!(
+                    "Unknown log level '{}', defaulting to info",
+                    self.logging.level
+                );
                 Level::INFO
             }
         }
     }
 
     pub fn get_refresh_duration(&self) -> Duration {
-        parse_duration(&self.metadata.refresh_interval)
-            .unwrap_or_else(|_| Duration::from_secs(300))
+        parse_duration(&self.metadata.refresh_interval).unwrap_or_else(|_| Duration::from_secs(300))
     }
 
     pub fn get_request_timeout(&self) -> Duration {
-        parse_duration(&self.metadata.request_timeout)
-            .unwrap_or_else(|_| Duration::from_secs(10))
+        parse_duration(&self.metadata.request_timeout).unwrap_or_else(|_| Duration::from_secs(10))
     }
 
     pub fn get_watchdog_interval(&self) -> Duration {
-        parse_duration(&self.security.watchdog.interval)
-            .unwrap_or_else(|_| Duration::from_secs(30))
+        parse_duration(&self.security.watchdog.interval).unwrap_or_else(|_| Duration::from_secs(30))
     }
 
     pub fn get_listen_addr(&self) -> String {
@@ -450,15 +447,14 @@ fn parse_duration(s: &str) -> Result<Duration> {
     }
 
     let (num_str, unit) = s.split_at(s.len() - 1);
-    let num: u64 = num_str.parse()
-        .context("invalid duration number")?;
+    let num: u64 = num_str.parse().context("invalid duration number")?;
 
     match unit {
         "s" => Ok(Duration::from_secs(num)),
         "m" => Ok(Duration::from_secs(num * 60)),
         "h" => Ok(Duration::from_secs(num * 3600)),
         "d" => Ok(Duration::from_secs(num * 86400)),
-        _ => Err(anyhow::anyhow!("invalid duration unit: {}", unit))
+        _ => Err(anyhow::anyhow!("invalid duration unit: {}", unit)),
     }
 }
 

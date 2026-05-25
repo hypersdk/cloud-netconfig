@@ -78,7 +78,10 @@ async fn show_system_status() -> anyhow::Result<()> {
                         println!("       VM Size: {}", vm_size.as_str().unwrap_or(""));
                     }
                     if let Some(subscription_id) = obj.get("subscriptionId") {
-                        println!("Subscription Id: {}", subscription_id.as_str().unwrap_or(""));
+                        println!(
+                            "Subscription Id: {}",
+                            subscription_id.as_str().unwrap_or("")
+                        );
                     }
                 }
             }
@@ -184,7 +187,10 @@ async fn apply_config(config_path: &str, dry_run: bool) -> anyhow::Result<()> {
         println!("  Route table base: {}", config.network.routing.table_base);
 
         if !config.network.interfaces.enabled.is_empty() {
-            println!("  Supplementary interfaces: {}", config.network.interfaces.enabled.join(", "));
+            println!(
+                "  Supplementary interfaces: {}",
+                config.network.interfaces.enabled.join(", ")
+            );
         }
     } else {
         println!("✓ Configuration validated");
@@ -215,23 +221,21 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Status { target } => {
-            match target.as_str() {
-                "system" => show_system_status().await?,
-                "network" => show_network_status().await?,
-                "all" => {
-                    show_daemon_status().await?;
-                    println!();
-                    show_system_status().await?;
-                    println!();
-                    show_network_status().await?;
-                }
-                _ => {
-                    eprintln!("Unknown target: {}", target);
-                    std::process::exit(1);
-                }
+        Commands::Status { target } => match target.as_str() {
+            "system" => show_system_status().await?,
+            "network" => show_network_status().await?,
+            "all" => {
+                show_daemon_status().await?;
+                println!();
+                show_system_status().await?;
+                println!();
+                show_network_status().await?;
             }
-        }
+            _ => {
+                eprintln!("Unknown target: {}", target);
+                std::process::exit(1);
+            }
+        },
 
         Commands::Apply { config, dry_run } => {
             apply_config(config, *dry_run).await?;

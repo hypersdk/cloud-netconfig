@@ -1,21 +1,19 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-use std::net::{IpAddr, SocketAddr};
 use anyhow::{anyhow, Result};
+use std::net::{IpAddr, SocketAddr};
 
 pub fn parse_ip(ip: &str) -> Result<IpAddr> {
-    ip.parse::<IpAddr>()
-        .map_err(|_| anyhow!("invalid IP"))
+    ip.parse::<IpAddr>().map_err(|_| anyhow!("invalid IP"))
 }
 
 pub fn parse_port(port: &str) -> Result<u16> {
-    port.parse::<u16>()
-        .map_err(|_| anyhow!("invalid port"))
+    port.parse::<u16>().map_err(|_| anyhow!("invalid port"))
 }
 
 pub fn parse_ip_port(s: &str) -> Result<(String, String)> {
-    let addr = s.parse::<SocketAddr>()
+    let addr = s
+        .parse::<SocketAddr>()
         .map_err(|_| anyhow!("invalid socket address"))?;
 
     Ok((addr.ip().to_string(), addr.port().to_string()))

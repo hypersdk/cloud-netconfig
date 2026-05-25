@@ -44,8 +44,8 @@ async fn main() -> anyhow::Result<()> {
     let config = conf::Config::parse()?;
 
     // Setup logging
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(&config.logging.level));
+    let filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&config.logging.level));
 
     match config.logging.format.as_str() {
         "json" => {
@@ -103,13 +103,16 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Detected cloud environment: {}", kind);
 
     // Initialize provider environment
-    let mut env = provider::Environment::new(kind, &config)
-        .expect("Failed to initialize cloud provider");
+    let mut env =
+        provider::Environment::new(kind, &config).expect("Failed to initialize cloud provider");
 
     // Handle security and privilege dropping
     if let Ok(cred) = system::get_user_credentials(None) {
         if cred.uid.is_root() {
-            tracing::info!("Running as root, attempting to drop privileges to user: {}", config.security.user);
+            tracing::info!(
+                "Running as root, attempting to drop privileges to user: {}",
+                config.security.user
+            );
 
             if let Ok(cloud_cred) = system::get_user_credentials(Some(&config.security.user)) {
                 let _ = system::create_state_dirs(
@@ -123,9 +126,15 @@ async fn main() -> anyhow::Result<()> {
                 let _ = system::disable_keep_capability();
                 let _ = system::apply_capability(&cloud_cred);
 
-                tracing::info!("Successfully dropped privileges to user: {}", config.security.user);
+                tracing::info!(
+                    "Successfully dropped privileges to user: {}",
+                    config.security.user
+                );
             } else {
-                tracing::warn!("User '{}' not found, continuing as root", config.security.user);
+                tracing::warn!(
+                    "User '{}' not found, continuing as root",
+                    config.security.user
+                );
             }
         }
     }
@@ -147,7 +156,9 @@ async fn main() -> anyhow::Result<()> {
         let supplementary = config.get_supplementary_interfaces();
         if !supplementary.is_empty() {
             tracing::info!("Configuring supplementary interfaces: {}", supplementary);
-            network::configure_supplementary_links(&supplementary).await.ok();
+            network::configure_supplementary_links(&supplementary)
+                .await
+                .ok();
         }
     }
 
@@ -169,7 +180,10 @@ async fn main() -> anyhow::Result<()> {
     let env_for_status = env.clone();
     let app = Router::new()
         .route("/health", get(health_check))
-        .route("/api/status", get(move || status_endpoint(env_for_status.clone())))
+        .route(
+            "/api/status",
+            get(move || status_endpoint(env_for_status.clone())),
+        )
         .route("/api/cloud/status", get(health_check));
 
     let listen_addr = config.get_listen_addr();
@@ -185,13 +199,17 @@ async fn main() -> anyhow::Result<()> {
     // Start watchdog thread if enabled
     if config.security.watchdog.enabled {
         let watchdog_interval = config.get_watchdog_interval();
-        tracing::info!("Systemd watchdog enabled with interval: {:?}", watchdog_interval);
+        tracing::info!(
+            "Systemd watchdog enabled with interval: {:?}",
+            watchdog_interval
+        );
 
         tokio::spawn(async move {
             let mut interval = tokio::time::interval(watchdog_interval);
             loop {
                 interval.tick().await;
-                let _ = libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Watchdog]);
+                let _ =
+                    libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Watchdog]);
             }
         });
     }

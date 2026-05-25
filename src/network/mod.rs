@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 mod address;
@@ -64,13 +63,16 @@ pub async fn configure_supplementary_links(supplementary: &str) -> Result<()> {
                 if let Err(e) = configure_by_index(index).await {
                     tracing::error!(
                         "Failed to configure network for link='{}' ifindex='{}': {}",
-                        name, index, e
+                        name,
+                        index,
+                        e
                     );
                     return Err(e);
                 }
                 tracing::debug!(
                     "Successfully configured network for link='{}' ifindex='{}'",
-                    name, index
+                    name,
+                    index
                 );
             }
             Err(e) => {

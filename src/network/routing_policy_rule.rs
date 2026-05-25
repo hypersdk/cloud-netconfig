@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 use anyhow::Result;
@@ -27,7 +26,12 @@ pub async fn routing_policy_rule_add(rule: &RoutingPolicyRule) -> Result<()> {
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
 
-    let mut request = handle.rule().add().v4().table_id(rule.table).action(RuleAction::ToTable);
+    let mut request = handle
+        .rule()
+        .add()
+        .v4()
+        .table_id(rule.table)
+        .action(RuleAction::ToTable);
 
     if let Some(ref from) = rule.from {
         let ip: Ipv4Addr = from.parse()?;
@@ -77,7 +81,9 @@ pub async fn routing_policy_rule_remove(rule: &RoutingPolicyRule) -> Result<()> 
     if let Some(ref to) = rule.to {
         let ip: Ipv4Addr = to.parse()?;
         message.header.dst_len = 32;
-        message.attributes.push(RuleAttribute::Destination(ip.into()));
+        message
+            .attributes
+            .push(RuleAttribute::Destination(ip.into()));
     }
 
     handle.rule().del(message).execute().await?;
