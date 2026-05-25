@@ -24,39 +24,28 @@ jobs:
           sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
           test -s release_notes.md || echo "Release ${VERSION}" > release_notes.md
 
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.ver.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+
+  build-binaries:
+    runs-on: ubuntu-latest
+    needs: release
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-
-      - name: Build release binaries
-        run: make build
-
-      - name: Package archives
+      - run: cargo build --release
+      - name: Upload assets when build succeeds
+        if: success()
         run: |
-          v=${{ steps.ver.outputs.version }}
-          for pair in "x86_64:cloud-netconfig-linux-x86_64" "aarch64:cloud-netconfig-linux-aarch64"; do
-            arch="${pair%%:*}"
-            name="${pair##*:}"
-            mkdir -p "${name}"
-            cp target/release/cloud-netconfigd target/release/cnctl "${name}/"
-            cp README.md CHANGELOG.md LICENSE.txt "${name}/"
-            tar czf "${name}-${v}.tar.gz" "${name}"
-            sha256sum "${name}-${v}.tar.gz" > "${name}-${v}.tar.gz.sha256"
-          done
-        continue-on-error: true
-
-      - name: Package x86_64 (fallback)
-        run: |
-          v=${{ steps.ver.outputs.version }}
+          v="${GITHUB_REF#refs/tags/v}"
           name=cloud-netconfig-linux-x86_64
           mkdir -p "${name}"
           cp target/release/cloud-netconfigd target/release/cnctl "${name}/"
           cp README.md CHANGELOG.md LICENSE.txt "${name}/"
           tar czf "${name}-${v}.tar.gz" "${name}"
-          sha256sum "${name}-${v}.tar.gz" > "${name}-${v}.tar.gz.sha256"
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          name: v${{ steps.ver.outputs.version }}
-          body_path: release_notes.md
-          files: |
-            cloud-netconfig-linux-x86_64-${{ steps.ver.outputs.version }}.tar.gz
-            cloud-netconfig-linux-x86_64-${{ steps.ver.outputs.version }}.tar.gz.sha256
+        continue-on-error: true
