@@ -1,3 +1,11 @@
+<p align="center">
+  <a href="https://zyvor.dev/?utm_source=github&utm_medium=cloud-netconfig">
+    <img src="docs/img/zyvor-logo.webp" alt="Zyvor AI Labs — HyperSDK Platform" width="220">
+  </a>
+</p>
+
+<p align="center"><sub>Cloud metadata networking · Multi-cloud · Part of the HyperSDK stack by Zyvor AI Labs</sub></p>
+
 # cloud-netconfig
 
 [![CI](https://github.com/hypersdk/cloud-netconfig/actions/workflows/ci.yml/badge.svg)](https://github.com/hypersdk/cloud-netconfig/actions/workflows/ci.yml)
@@ -7,6 +15,8 @@
 **Automatic network configuration for cloud instances**
 
 `cloud-netconfig` automatically configures network interfaces in cloud environments by fetching metadata from cloud provider APIs (Azure IMDS, AWS EC2 IMDS, GCP Metadata Service). It handles secondary IP addresses, routing tables, and policy-based routing for multi-interface cloud instances.
+
+> **Enterprise & production:** [zyvor.dev](https://zyvor.dev/?utm_source=github&utm_medium=cloud-netconfig) · [Contact sales](https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig) · [sales@zyvor.dev](mailto:sales@zyvor.dev)
 
 ## Features
 
@@ -405,14 +415,45 @@ src/
 
 <p align="center">
   <a href="https://zyvor.dev/">
-    <img src="docs/img/zyvor-logo.webp" alt="Zyvor AI Labs" width="200">
+    <img src="docs/img/zyvor-logo.webp" alt="Zyvor AI Labs" width="220">
   </a>
 </p>
 
-- **GitHub Issues**: [hypersdk/cloud-netconfig](https://github.com/hypersdk/cloud-netconfig/issues)
-- **Enterprise**: [zyvor.dev](https://zyvor.dev/) · [Contact](https://zyvor.dev/contact) · [sales@zyvor.dev](mailto:sales@zyvor.dev) · [Enterprise guide](docs/zyvor-enterprise.md)
+**cloud-netconfig** is the open-source cloud networking daemon in the [HyperSDK Platform](https://zyvor.dev/) (Zeus suite), engineered by [Zyvor AI Labs](https://zyvor.dev/).
 
-Works alongside [netevd](https://github.com/hypersdk/netevd) and [netctl](https://github.com/hypersdk/netctl) in the HyperSDK networking stack.
+### Open source (this repository)
+
+- **GitHub Issues**: [hypersdk/cloud-netconfig](https://github.com/hypersdk/cloud-netconfig/issues)
+- **Documentation**: [docs/](docs/)
+
+### Enterprise — approach [zyvor.dev](https://zyvor.dev/)
+
+**Production workloads, SLAs, and platform integration are provided by Zyvor — not via GitHub Issues.**
+
+| | |
+|---|---|
+| **Platform** | **[zyvor.dev](https://zyvor.dev/)** |
+| **Sales & demos** | [sales@zyvor.dev](mailto:sales@zyvor.dev) |
+| **General inquiries** | [info@zyvor.dev](mailto:info@zyvor.dev) |
+| **Contact form** | [zyvor.dev/contact](https://zyvor.dev/contact) |
+
+#### Related networking products
+
+| Product | Focus |
+|---------|--------|
+| **[cloud-netconfig](https://github.com/hypersdk/cloud-netconfig)** (this repo) | Cloud metadata networking |
+| **[netevd](https://github.com/hypersdk/netevd)** | Event hooks, policy routing |
+| **[netctl](https://github.com/hypersdk/netctl)** | Network configuration CLI |
+| **[PacketWolf](https://zyvor.dev/packetwolf)** | eBPF observability |
+| **[HyperSDK Platform](https://zyvor.dev/hypersdk)** | VM export & migration |
+
+→ [Watch demo](https://zyvor.dev/demo?utm_source=github&utm_medium=cloud-netconfig) · [Compare products](https://zyvor.dev/docs/products) · [Contact sales](https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig)
+
+📄 [Open source vs Enterprise](docs/ce-vs-enterprise.md) · [Enterprise guide](docs/zyvor-enterprise.md)
+
+### Security
+
+Report vulnerabilities privately using [SECURITY.md](SECURITY.md).
 
 ## License
 
