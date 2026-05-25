@@ -1,9 +1,8 @@
 # cloud-netconfig
 
-[![CI](https://github.com/ssahani/cloud-netconfig/workflows/CI/badge.svg)](https://github.com/ssahani/cloud-netconfig/actions/workflows/ci.yml)
-[![Security Audit](https://github.com/ssahani/cloud-netconfig/workflows/Security%20Audit/badge.svg)](https://github.com/ssahani/cloud-netconfig/actions/workflows/security-audit.yml)
+[![CI](https://github.com/hypersdk/cloud-netconfig/actions/workflows/ci.yml/badge.svg)](https://github.com/hypersdk/cloud-netconfig/actions/workflows/ci.yml)
 [![License: LGPL-3.0-or-later](https://img.shields.io/badge/License-LGPL%203.0--or--later-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Release](https://img.shields.io/github/v/release/ssahani/cloud-netconfig)](https://github.com/ssahani/cloud-netconfig/releases)
+[![Release](https://img.shields.io/github/v/release/hypersdk/cloud-netconfig)](https://github.com/hypersdk/cloud-netconfig/releases)
 
 **Automatic network configuration for cloud instances**
 
@@ -29,7 +28,7 @@
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Clone repository
-git clone https://github.com/ssahani/cloud-netconfig.git
+git clone https://github.com/hypersdk/cloud-netconfig.git
 cd cloud-netconfig
 
 # Build
@@ -397,15 +396,31 @@ src/
 └── web/                    # HTTP utilities
 ```
 
+## Documentation
+
+- [docs/](docs/) — documentation hub
+- [CHANGELOG](CHANGELOG.md) · [SECURITY](SECURITY.md)
+
+## Support
+
+<p align="center">
+  <a href="https://zyvor.dev/">
+    <img src="docs/img/zyvor-logo.webp" alt="Zyvor AI Labs" width="200">
+  </a>
+</p>
+
+- **GitHub Issues**: [hypersdk/cloud-netconfig](https://github.com/hypersdk/cloud-netconfig/issues)
+- **Enterprise**: [zyvor.dev](https://zyvor.dev/) · [Contact](https://zyvor.dev/contact) · [sales@zyvor.dev](mailto:sales@zyvor.dev) · [Enterprise guide](docs/zyvor-enterprise.md)
+
+Works alongside [netevd](https://github.com/hypersdk/netevd) and [netctl](https://github.com/hypersdk/netctl) in the HyperSDK networking stack.
+
 ## License
 
 SPDX-License-Identifier: LGPL-3.0-or-later
 
-This project is licensed under the GNU Lesser General Public License v3.0 or later.
-
 ## Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Pull requests and issues welcome on GitHub.
 
 ## Troubleshooting
 
