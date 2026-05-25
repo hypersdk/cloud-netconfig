@@ -100,17 +100,22 @@ impl super::CloudProvider for EC2 {
     }
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
-        for (mac, mac_data) in &self.macs {
-            if let Some(link) = env.links.links_by_mac.get(mac) {
-                let addresses_str = mac_data.local_ipv4s.join(",");
-                let addresses = self.parse_ipv4_addresses_from_metadata(
-                    &addresses_str,
-                    &mac_data.subnet_ipv4_cidr_block,
-                );
+        let macs: Vec<String> = self.macs.keys().cloned().collect();
+        for mac in macs {
+            let Some(mac_data) = self.macs.get(&mac) else {
+                continue;
+            };
+            let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
+                continue;
+            };
+            let addresses_str = mac_data.local_ipv4s.join(",");
+            let addresses = self.parse_ipv4_addresses_from_metadata(
+                &addresses_str,
+                &mac_data.subnet_ipv4_cidr_block,
+            );
 
-                if !addresses.is_empty() {
-                    super::network::configure_network(env, link, addresses, None, None).await?;
-                }
+            if !addresses.is_empty() {
+                super::network::configure_network(env, &link, addresses, None, None).await?;
             }
         }
         Ok(())

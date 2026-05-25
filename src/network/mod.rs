@@ -18,7 +18,7 @@ pub async fn configure_by_index(if_index: u32) -> Result<()> {
     let gw = get_ipv4_gateway(if_index).await?;
 
     let route = Route {
-        table: (ROUTE_TABLE_BASE + if_index + if_index) as u32,
+        table: crate::conf::ROUTE_TABLE_BASE + if_index + if_index,
         if_index,
         gw: gw.clone(),
     };
@@ -35,7 +35,7 @@ pub async fn configure_by_index(if_index: u32) -> Result<()> {
         let from = RoutingPolicyRule {
             from: Some(ip_str.to_string()),
             to: None,
-            table: (ROUTE_TABLE_BASE + if_index) as u32,
+            table: crate::conf::ROUTE_TABLE_BASE + if_index,
         };
 
         routing_policy_rule_add(&from).await?;
@@ -43,7 +43,7 @@ pub async fn configure_by_index(if_index: u32) -> Result<()> {
         let to = RoutingPolicyRule {
             from: None,
             to: Some(ip_str.to_string()),
-            table: (ROUTE_TABLE_BASE + if_index) as u32,
+            table: crate::conf::ROUTE_TABLE_BASE + if_index,
         };
 
         routing_policy_rule_add(&to).await?;

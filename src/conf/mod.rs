@@ -8,6 +8,9 @@ use tracing::Level;
 pub const VERSION: &str = "0.3.0";
 pub const CONF_FILE: &str = "cloud-network";
 pub const CONF_PATH: &str = "/etc/cloud-network";
+pub const SYSTEM_STATE_DIR: &str = "/run/cloud-network";
+pub const LINK_STATE_DIR: &str = "/run/cloud-network/links";
+pub const ROUTE_TABLE_BASE: u32 = 9999;
 
 pub const DEFAULT_HTTP_REQUEST_TIMEOUT: u64 = 10000;
 

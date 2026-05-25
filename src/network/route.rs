@@ -4,6 +4,7 @@
 use anyhow::{anyhow, Result};
 use futures::stream::TryStreamExt;
 use rtnetlink::new_connection;
+use rtnetlink::packet_route::route::{RouteAddress, RouteAttribute};
 use std::net::Ipv4Addr;
 
 #[derive(Debug, Clone)]
@@ -13,6 +14,13 @@ pub struct Route {
     pub gw: String,
 }
 
+fn ipv4_from_route_address(addr: &RouteAddress) -> Option<String> {
+    match addr {
+        RouteAddress::Inet(addr) => Some(addr.address.to_string()),
+        _ => None,
+    }
+}
+
 pub async fn get_default_ipv4_gateway() -> Result<String> {
     let (connection, handle, _) = new_connection()?;
     tokio::spawn(connection);
@@ -20,22 +28,15 @@ pub async fn get_default_ipv4_gateway() -> Result<String> {
     let mut route_stream = handle.route().get(rtnetlink::IpVersion::V4).execute();
 
     while let Some(route_msg) = route_stream.try_next().await? {
-        // Look for default route (0.0.0.0/0)
-        let is_default = route_msg.header.destination_prefix_length == 0;
+        if route_msg.header.destination_prefix_length != 0 {
+            continue;
+        }
 
-        if is_default {
-            if let Some(gw) = route_msg.nlas.iter().find_map(|nla| {
-                if let netlink_packet_route::route::nlas::Nla::Gateway(addr) = nla {
-                    if addr.len() == 4 {
-                        Some(format!("{}.{}.{}.{}", addr[0], addr[1], addr[2], addr[3]))
-                    } else {
-                        None
-                    }
-                } else {
-                    None
+        for attr in &route_msg.attributes {
+            if let RouteAttribute::Gateway(gw) = attr {
+                if let Some(ip) = ipv4_from_route_address(gw) {
+                    return Ok(ip);
                 }
-            }) {
-                return Ok(gw);
             }
         }
     }
@@ -50,30 +51,23 @@ pub async fn get_default_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
     let mut route_stream = handle.route().get(rtnetlink::IpVersion::V4).execute();
 
     while let Some(route_msg) = route_stream.try_next().await? {
-        // Check if this is a default route for the specific link
-        let is_default = route_msg.header.destination_prefix_length == 0;
+        if route_msg.header.destination_prefix_length != 0 {
+            continue;
+        }
 
-        let matches_link = route_msg.nlas.iter().any(|nla| {
-            if let netlink_packet_route::route::nlas::Nla::Oif(index) = nla {
-                *index == if_index
-            } else {
-                false
-            }
+        let matches_link = route_msg.attributes.iter().any(|attr| {
+            matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index)
         });
 
-        if is_default && matches_link {
-            if let Some(gw) = route_msg.nlas.iter().find_map(|nla| {
-                if let netlink_packet_route::route::nlas::Nla::Gateway(addr) = nla {
-                    if addr.len() == 4 {
-                        Some(format!("{}.{}.{}.{}", addr[0], addr[1], addr[2], addr[3]))
-                    } else {
-                        None
-                    }
-                } else {
-                    None
+        if !matches_link {
+            continue;
+        }
+
+        for attr in &route_msg.attributes {
+            if let RouteAttribute::Gateway(gw) = attr {
+                if let Some(ip) = ipv4_from_route_address(gw) {
+                    return Ok(ip);
                 }
-            }) {
-                return Ok(gw);
             }
         }
     }
@@ -88,27 +82,19 @@ pub async fn get_ipv4_gateway_by_link(if_index: u32) -> Result<String> {
     let mut route_stream = handle.route().get(rtnetlink::IpVersion::V4).execute();
 
     while let Some(route_msg) = route_stream.try_next().await? {
-        let matches_link = route_msg.nlas.iter().any(|nla| {
-            if let netlink_packet_route::route::nlas::Nla::Oif(index) = nla {
-                *index == if_index
-            } else {
-                false
-            }
+        let matches_link = route_msg.attributes.iter().any(|attr| {
+            matches!(attr, RouteAttribute::Oif(idx) if *idx == if_index)
         });
 
-        if matches_link {
-            if let Some(gw) = route_msg.nlas.iter().find_map(|nla| {
-                if let netlink_packet_route::route::nlas::Nla::Gateway(addr) = nla {
-                    if addr.len() == 4 {
-                        Some(format!("{}.{}.{}.{}", addr[0], addr[1], addr[2], addr[3]))
-                    } else {
-                        None
-                    }
-                } else {
-                    None
+        if !matches_link {
+            continue;
+        }
+
+        for attr in &route_msg.attributes {
+            if let RouteAttribute::Gateway(gw) = attr {
+                if let Some(ip) = ipv4_from_route_address(gw) {
+                    return Ok(ip);
                 }
-            }) {
-                return Ok(gw);
             }
         }
     }
@@ -137,7 +123,6 @@ pub async fn route_add(route: &Route) -> Result<()> {
         Err(e) => {
             let err_str = format!("{}", e);
             if err_str.contains("File exists") || err_str.contains("EEXIST") {
-                // Route already exists, this is okay
                 Ok(())
             } else {
                 Err(anyhow::anyhow!("Failed to add route: {}", e))

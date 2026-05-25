@@ -3,8 +3,8 @@
 
 use anyhow::{anyhow, Context, Result};
 use futures::stream::TryStreamExt;
-use rtnetlink::{new_connection, Handle};
-use std::collections::HashMap;
+use rtnetlink::new_connection;
+use rtnetlink::packet_route::link::LinkAttribute;
 
 #[derive(Debug, Clone)]
 pub struct Link {
@@ -13,18 +13,18 @@ pub struct Link {
     pub oper_state: String,
     pub mac: String,
     pub mtu: u32,
-    pub addresses: Option<HashMap<String, bool>>,
+    pub addresses: Option<std::collections::HashMap<String, bool>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Links {
-    pub links_by_mac: HashMap<String, Link>,
+    pub links_by_mac: std::collections::HashMap<String, Link>,
 }
 
 impl Links {
     pub fn new() -> Self {
         Self {
-            links_by_mac: HashMap::new(),
+            links_by_mac: std::collections::HashMap::new(),
         }
     }
 }
@@ -37,61 +37,29 @@ pub async fn acquire_links() -> Result<Links> {
     let mut link_stream = handle.link().get().execute();
 
     while let Some(link_msg) = link_stream.try_next().await? {
-        let name = link_msg
-            .nlas
-            .iter()
-            .find_map(|nla| {
-                if let netlink_packet_route::link::nlas::Nla::IfName(n) = nla {
-                    Some(n.clone())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
+        let mut name = String::new();
+        let mut mac = String::new();
+        let mut mtu = 0u32;
+        let mut oper_state = "unknown".to_string();
 
-        // Skip loopback
-        if name == "lo" {
-            continue;
-        }
-
-        let mac = link_msg
-            .nlas
-            .iter()
-            .find_map(|nla| {
-                if let netlink_packet_route::link::nlas::Nla::Address(addr) = nla {
-                    Some(format!(
+        for attr in &link_msg.attributes {
+            match attr {
+                LinkAttribute::IfName(n) => name = n.clone(),
+                LinkAttribute::Address(addr) if addr.len() == 6 => {
+                    mac = format!(
                         "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
                         addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]
-                    ))
-                } else {
-                    None
+                    );
                 }
-            })
-            .unwrap_or_default();
+                LinkAttribute::Mtu(m) => mtu = *m,
+                LinkAttribute::OperState(state) => oper_state = format!("{:?}", state),
+                _ => {}
+            }
+        }
 
-        let mtu = link_msg
-            .nlas
-            .iter()
-            .find_map(|nla| {
-                if let netlink_packet_route::link::nlas::Nla::Mtu(m) = nla {
-                    Some(*m)
-                } else {
-                    None
-                }
-            })
-            .unwrap_or(0);
-
-        let oper_state = link_msg
-            .nlas
-            .iter()
-            .find_map(|nla| {
-                if let netlink_packet_route::link::nlas::Nla::OperState(state) = nla {
-                    Some(format!("{:?}", state))
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_else(|| "unknown".to_string());
+        if name == "lo" || mac.is_empty() {
+            continue;
+        }
 
         let link = Link {
             name,
@@ -124,19 +92,12 @@ pub async fn get_link_name_by_index(if_index: u32) -> Result<String> {
     let mut link_stream = handle.link().get().match_index(if_index).execute();
 
     if let Some(link_msg) = link_stream.try_next().await? {
-        let name = link_msg
-            .nlas
-            .iter()
-            .find_map(|nla| {
-                if let netlink_packet_route::link::nlas::Nla::IfName(n) = nla {
-                    Some(n.clone())
-                } else {
-                    None
-                }
-            })
-            .ok_or_else(|| anyhow!("Link name not found"))?;
-
-        return Ok(name);
+        for attr in &link_msg.attributes {
+            if let LinkAttribute::IfName(n) = attr {
+                return Ok(n.clone());
+            }
+        }
+        return Err(anyhow!("Link name not found"));
     }
 
     Err(anyhow!("Link with index {} not found", if_index))

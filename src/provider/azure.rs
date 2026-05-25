@@ -109,11 +109,16 @@ impl super::CloudProvider for Azure {
     }
 
     async fn configure_network_from_cloud_meta(&self, env: &mut super::Environment) -> Result<()> {
-        for (mac, link) in &env.links.links_by_mac {
-            let addresses = self.parse_ipv4_addresses_from_metadata_by_mac(mac);
-            if !addresses.is_empty() {
-                super::network::configure_network(env, link, addresses, None, None).await?;
+        let macs: Vec<String> = env.links.links_by_mac.keys().cloned().collect();
+        for mac in macs {
+            let addresses = self.parse_ipv4_addresses_from_metadata_by_mac(&mac);
+            if addresses.is_empty() {
+                continue;
             }
+            let Some(link) = env.links.links_by_mac.get(&mac).cloned() else {
+                continue;
+            };
+            super::network::configure_network(env, &link, addresses, None, None).await?;
         }
         Ok(())
     }

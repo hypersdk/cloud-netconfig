@@ -38,8 +38,10 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 # Netlink for network configuration
-rtnetlink = "0.14"
-netlink-packet-route = "0.18"
+rtnetlink = "0.21"
+netlink-packet-route = "0.30"
+netlink-packet-core = "0.8"
+netlink-proto = "0.12"
 netlink-sys = "0.8"
 futures = "0.3"
 
