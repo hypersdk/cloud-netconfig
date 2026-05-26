@@ -6,6 +6,8 @@
 
 Automatic network configuration for cloud instances using provider metadata (Azure, AWS, GCP, and others). Handles secondary IPs, routing tables, and policy-based routing on multi-interface VMs.
 
+> **Enterprise:** multi-cloud production support and platform SLAs — [zyvor.dev/contact](https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig) · [demo](https://zyvor.dev/demo?utm_source=github&utm_medium=cloud-netconfig)
+
 ## Features
 
 - Multi-cloud metadata clients (Azure, AWS EC2, GCP, and more)
@@ -77,6 +79,10 @@ cnctl status system
 ```
 
 Enable debug logging in the config file (`logging.level: debug`) when diagnosing metadata or routing issues.
+
+## Enterprise
+
+This repo is the open-source daemon. For supported multi-cloud rollouts, SLAs, and integration with the HyperSDK migration stack, contact Zyvor: [zyvor.dev/contact](https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig).
 
 ## License
 
