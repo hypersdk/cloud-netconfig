@@ -40,6 +40,8 @@ jobs:
           name=cloud-netconfig-linux-x86_64
           mkdir -p "${name}"
           cp target/release/cloud-netconfigd target/release/cnctl "${name}/"
-          cp README.md LICENSE.txt "${name}/"
+          cp README.md "${name}/"
+          chmod +x scripts/lib/copy-zyvor-legal-to-bundle.sh
+          ./scripts/lib/copy-zyvor-legal-to-bundle.sh "${name}" "${GITHUB_WORKSPACE}"
           tar czf "${name}-${v}.tar.gz" "${name}"
         continue-on-error: true
