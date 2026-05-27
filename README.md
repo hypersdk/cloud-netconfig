@@ -91,7 +91,12 @@ Community Edition is the open-source daemon. Supported multi-cloud rollouts, SLA
 
 ## License
 
-LGPL-3.0-or-later — see [LICENSE.txt](LICENSE.txt). Security: [SECURITY.md](SECURITY.md).
+| Document | Purpose |
+|----------|---------|
+| [LICENSE.txt](LICENSE.txt) | **LGPL-3.0-or-later** — source code |
+| [ZYVOR-COMPANY-TERMS.md](ZYVOR-COMPANY-TERMS.md) | Zyvor brand / distribution (see docs/legal/) |
+
+Enterprise: [sales@zyvor.dev](mailto:sales@zyvor.dev) · General: [info@zyvor.dev](mailto:info@zyvor.dev). Security: [SECURITY.md](SECURITY.md).
 
 ## Support
 
