@@ -104,5 +104,5 @@ fi
 %dir %attr(0755,cloud-network,cloud-network) %{_sharedstatedir}/%{name}
 
 %changelog
-* Tue Jan 21 2025 Susant Sahani <susant@redhat.com> - 0.3.0-1
+* Tue Jan 21 2025 ZyvorAI Labs Private Limited <legal@zyvor.dev> - 0.3.0-1
 - Initial RPM release

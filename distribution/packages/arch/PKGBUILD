@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-# Maintainer: Susant Sahani <susant@redhat.com>
+# Maintainer: ZyvorAI Labs Private Limited <legal@zyvor.dev>
 
 pkgname=cloud-netconfig
 pkgver=0.3.0
