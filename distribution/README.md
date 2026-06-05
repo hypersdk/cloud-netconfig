@@ -243,4 +243,4 @@ When packaging cloud-netconfig, install files to:
 
 ## License
 
-All files: LGPL-3.0-or-later
+All files: Apache-2.0

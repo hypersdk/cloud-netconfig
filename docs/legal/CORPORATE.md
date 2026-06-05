@@ -1,6 +1,6 @@
 # ZyvorAI Labs — Cloud NetConfig corporate reference
 
-**Source code:** [LICENSE.txt](../../LICENSE.txt) (LGPL-3.0-or-later)  
+**Source code:** [LICENSE.txt](../../LICENSE.txt) (Apache-2.0)  
 **Zyvor distribution:** [ZYVOR-COMPANY-TERMS.md](../../ZYVOR-COMPANY-TERMS.md)
 
 | Field | Value |

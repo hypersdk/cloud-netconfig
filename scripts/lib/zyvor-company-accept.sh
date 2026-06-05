@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Zyvor company terms — does not replace LICENSE.txt (LGPL-3.0-or-later).
+# Zyvor company terms — does not replace LICENSE.txt (Apache-2.0).
 set -euo pipefail
 PRODUCT="Cloud NetConfig"
-CODE_LICENSE="LGPL-3.0-or-later"
+CODE_LICENSE="Apache-2.0"
 LICENSE_FILE="LICENSE.txt"
 ENV_PREFIX="CLOUD_NETCONFIG"
 RECORD_DIR="cloud-netconfig"

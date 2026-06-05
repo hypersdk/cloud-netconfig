@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-License-Identifier: LGPL-3.0-or-later
+# SPDX-License-Identifier: Apache-2.0
 # Uninstallation script for cloud-netconfig
 
 set -e

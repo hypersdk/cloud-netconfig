@@ -2,7 +2,7 @@
 name = "cloud-netconfig"
 version = "0.2.2"
 edition = "2021"
-license = "LGPL-3.0-or-later"
+license = "Apache-2.0"
 description = "Configures network in cloud environment from metadata"
 
 [[bin]]

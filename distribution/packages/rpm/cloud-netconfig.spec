@@ -1,11 +1,11 @@
-# SPDX-License-Identifier: LGPL-3.0-or-later
+# SPDX-License-Identifier: Apache-2.0
 
 Name:           cloud-netconfig
 Version:        0.3.0
 Release:        1%{?dist}
 Summary:        Cloud instance network configuration daemon
 
-License:        LGPL-3.0-or-later
+License:        Apache-2.0
 URL:            https://github.com/ssahani/cloud-netconfig
 Source0:        %{name}-%{version}.tar.gz
 

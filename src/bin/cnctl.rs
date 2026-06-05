@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-License-Identifier: Apache-2.0
 
 use clap::{Parser, Subcommand};
 use cloud_netconfig::*;
@@ -247,7 +247,7 @@ async fn main() -> anyhow::Result<()> {
 
         Commands::Version => {
             println!("cnctl version {}", conf::VERSION);
-            println!("License: LGPL-3.0-or-later");
+            println!("License:        Apache-2.0");
         }
     }
 

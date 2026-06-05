@@ -1,6 +1,6 @@
 # Zyvor company terms — Cloud NetConfig distribution
 
-**Supplemental agreement — read together with [LICENSE.txt](LICENSE.txt) (LGPL-3.0-or-later).**
+**Supplemental agreement — read together with [LICENSE.txt](LICENSE.txt) (Apache-2.0).**
 
 **Company:** ZyvorAI Labs Private Limited · [zyvor.dev](https://zyvor.dev)  
 **Product:** Cloud NetConfig  
@@ -12,10 +12,10 @@
 
 | Layer | Governs |
 |-------|---------|
-| **[LICENSE.txt](LICENSE.txt)** | Cloud NetConfig **software** — LGPL-3.0-or-later (proprietary; all rights reserved) |
+| **[LICENSE.txt](LICENSE.txt)** | Cloud NetConfig **software** — Apache-2.0 (Community Edition; open source) |
 | **This document** | **Zyvor-branded** builds, binaries, customer bundles, and zyvor.dev distribution |
 
-You must comply with **both**. The proprietary license controls use of the **software**; this document covers **brand, distribution, and commercial relationship** with Zyvor.
+You must comply with **both**. The Apache license controls use of the **Community Edition software**; this document covers **brand, distribution, and commercial relationship** with Zyvor.
 
 ## 2. Acceptance
 
