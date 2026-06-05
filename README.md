@@ -4,6 +4,12 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Release](https://img.shields.io/github/v/release/hypersdk/cloud-netconfig)](https://github.com/hypersdk/cloud-netconfig/releases)
 
+<p align="center">
+  <a href="https://zyvor.dev/demo?utm_source=github&utm_medium=cloud-netconfig"><img src="https://img.shields.io/badge/Demo-F97316?style=flat-square" alt="Demo"/></a>
+  <a href="https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig"><img src="https://img.shields.io/badge/Contact_sales-22C55E?style=flat-square" alt="Contact"/></a>
+  <a href="https://github.com/sponsors/ssahani?utm_source=github&utm_medium=cloud-netconfig"><img src="https://img.shields.io/badge/Sponsor-ssahani-ea4aaa?style=flat-square&logo=github-sponsors&logoColor=white" alt="Sponsor"/></a>
+</p>
+
 Automatic network configuration for cloud instances using provider metadata (Azure, AWS, GCP, and others). Handles secondary IPs, routing tables, and policy-based routing on multi-interface VMs.
 
 ## Features
@@ -89,6 +95,18 @@ Enable debug logging in the config file (`logging.level: debug`) when diagnosing
 
 Community Edition is the open-source daemon. Supported multi-cloud rollouts, SLAs, and HyperSDK migration integration → contact Zyvor (not GitHub Issues). Details: [docs/enterprise.md](docs/enterprise.md).
 
+## Support the project
+
+cloud-netconfig Community Edition is free and open source. If it saves you time, consider sponsoring ongoing development:
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-ssahani-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ssahani?utm_source=github&utm_medium=cloud-netconfig)
+
+Maintained by **Susant Sahani** · [Zyvor AI Labs](https://zyvor.dev?utm_source=github&utm_medium=cloud-netconfig)
+
+- **Sponsor:** [github.com/sponsors/ssahani](https://github.com/sponsors/ssahani?utm_source=github&utm_medium=cloud-netconfig)
+- **Enterprise / production:** [zyvor.dev/contact](https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig) · [sales@zyvor.dev](mailto:sales@zyvor.dev)
+- **Community help:** [GitHub Issues](https://github.com/hypersdk/cloud-netconfig/issues)
+
 ## License
 
 cloud-netconfig is licensed under the Apache License, Version 2.0.
@@ -100,9 +118,5 @@ This repository contains only the cloud-netconfig Community Edition source code.
 Other Zyvor products, platforms, services, and commercial offerings are separate works and may be governed by different licenses and terms.
 
 Enterprise: [sales@zyvor.dev](mailto:sales@zyvor.dev) · General: [info@zyvor.dev](mailto:info@zyvor.dev). Security: [SECURITY.md](SECURITY.md).
-
-## Support
-
-[github.com/hypersdk/cloud-netconfig/issues](https://github.com/hypersdk/cloud-netconfig/issues)
 
 Related: [netevd](https://github.com/hypersdk/netevd) · [netctl](https://github.com/hypersdk/netctl) · [hypersdk](https://github.com/hypersdk/hypersdk)
