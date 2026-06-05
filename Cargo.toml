@@ -2,6 +2,7 @@
 name = "cloud-netconfig"
 version = "0.2.2"
 edition = "2021"
+authors = ["ZyvorAI Labs Private Limited <info@zyvor.dev>"]
 license = "Apache-2.0"
 description = "Configures network in cloud environment from metadata"
 
