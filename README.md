@@ -1,7 +1,7 @@
 # cloud-netconfig
 
 [![CI](https://github.com/hypersdk/cloud-netconfig/actions/workflows/ci.yml/badge.svg)](https://github.com/hypersdk/cloud-netconfig/actions/workflows/ci.yml)
-[![License: LGPL-3.0-or-later](https://img.shields.io/badge/License-LGPL%203.0--or--later-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Release](https://img.shields.io/github/v/release/hypersdk/cloud-netconfig)](https://github.com/hypersdk/cloud-netconfig/releases)
 
 Automatic network configuration for cloud instances using provider metadata (Azure, AWS, GCP, and others). Handles secondary IPs, routing tables, and policy-based routing on multi-interface VMs.
@@ -91,10 +91,9 @@ Community Edition is the open-source daemon. Supported multi-cloud rollouts, SLA
 
 ## License
 
-| Document | Purpose |
-|----------|---------|
-| [LICENSE.txt](LICENSE.txt) | **LGPL-3.0-or-later** — source code |
-| [ZYVOR-COMPANY-TERMS.md](ZYVOR-COMPANY-TERMS.md) | Zyvor brand / distribution (see docs/legal/) |
+cloud-netconfig Community Edition is licensed under the Apache License 2.0.
+cloud-netconfig Enterprise Edition includes additional proprietary features and is licensed
+separately under a commercial license from Zyvor AI Labs Private Limited.
 
 Enterprise: [sales@zyvor.dev](mailto:sales@zyvor.dev) · General: [info@zyvor.dev](mailto:info@zyvor.dev). Security: [SECURITY.md](SECURITY.md).
 
