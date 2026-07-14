@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://zyvor.dev/demo?utm_source=github&utm_medium=cloud-netconfig"><img src="https://img.shields.io/badge/Demo-F97316?style=flat-square" alt="Demo"/></a>
   <a href="https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig"><img src="https://img.shields.io/badge/Contact_sales-22C55E?style=flat-square" alt="Contact"/></a>
-  <a href="https://github.com/sponsors/ssahani?utm_source=github&utm_medium=cloud-netconfig"><img src="https://img.shields.io/badge/Sponsor-ssahani-ea4aaa?style=flat-square&logo=github-sponsors&logoColor=white" alt="Sponsor"/></a>
+  <a href="https://razorpay.me/@zyvorAILabs"><img src="https://img.shields.io/badge/Sponsor-Zyvor%20AI%20Labs-0c2451?style=flat-square&logo=razorpay&logoColor=white" alt="Sponsor"/></a>
 </p>
 
 Automatic network configuration for cloud instances using provider metadata (Azure, AWS, GCP, and others). Handles secondary IPs, routing tables, and policy-based routing on multi-interface VMs.
@@ -99,11 +99,11 @@ Community Edition is the open-source daemon. Supported multi-cloud rollouts, SLA
 
 cloud-netconfig Community Edition is free and open source. If it saves you time, consider sponsoring ongoing development:
 
-[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-ssahani-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ssahani?utm_source=github&utm_medium=cloud-netconfig)
+[![Sponsor on Razorpay](https://img.shields.io/badge/Sponsor-Zyvor%20AI%20Labs-0c2451?logo=razorpay&logoColor=white)](https://razorpay.me/@zyvorAILabs)
 
 Maintained by **Susant Sahani** · [Zyvor AI Labs](https://zyvor.dev?utm_source=github&utm_medium=cloud-netconfig)
 
-- **Sponsor:** [github.com/sponsors/ssahani](https://github.com/sponsors/ssahani?utm_source=github&utm_medium=cloud-netconfig)
+- **Sponsor:** [razorpay.me/@zyvorAILabs](https://razorpay.me/@zyvorAILabs)
 - **Enterprise / production:** [zyvor.dev/contact](https://zyvor.dev/contact?utm_source=github&utm_medium=cloud-netconfig) · [sales@zyvor.dev](mailto:sales@zyvor.dev)
 - **Community help:** [GitHub Issues](https://github.com/hypersdk/cloud-netconfig/issues)
 
