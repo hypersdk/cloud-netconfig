@@ -1,4 +1,6 @@
 # shellcheck shell=bash
+# Copyright 2026 Zyvor AI Labs Private Limited
+# SPDX-License-Identifier: Apache-2.0
 # Shared UI helpers for VMRogue-family client packaging scripts.
 # Source from scripts/lib/*.sh or .package-lib/package-ui.sh inside tarballs.
 
