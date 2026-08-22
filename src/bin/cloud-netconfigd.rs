@@ -50,9 +50,9 @@ async fn main() -> anyhow::Result<()> {
     match config.logging.format.as_str() {
         "json" => {
             let layer = if config.logging.timestamps {
-                fmt::layer().json()
+                fmt::layer().json().boxed()
             } else {
-                fmt::layer().json().without_time()
+                fmt::layer().json().without_time().boxed()
             };
             tracing_subscriber::registry()
                 .with(layer)
@@ -61,9 +61,9 @@ async fn main() -> anyhow::Result<()> {
         }
         _ => {
             let layer = if config.logging.timestamps {
-                fmt::layer()
+                fmt::layer().boxed()
             } else {
-                fmt::layer().without_time()
+                fmt::layer().without_time().boxed()
             };
             tracing_subscriber::registry()
                 .with(layer)
@@ -145,7 +145,7 @@ async fn main() -> anyhow::Result<()> {
     // Start network event watching if enabled
     if config.features.network_events {
         tracing::info!("Network event watching enabled");
-        provider::watch::watch_network(env.clone()).await;
+        provider::watch_network(env.clone()).await;
     }
 
     // Initial configuration
@@ -223,8 +223,8 @@ async fn main() -> anyhow::Result<()> {
     };
 
     // Start HTTP server with graceful shutdown
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal)
         .await?;
 
