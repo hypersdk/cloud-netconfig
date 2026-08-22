@@ -12,6 +12,18 @@
 
 Automatic network configuration for cloud instances using provider metadata (Azure, AWS, GCP, and others). Handles secondary IPs, routing tables, and policy-based routing on multi-interface VMs.
 
+## Table of contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [CLI](#cli)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
+- [Enterprise](#enterprise)
+- [Support the project](#support-the-project)
+- [License](#license)
+
 ## Features
 
 - Multi-cloud metadata clients (Azure, AWS EC2, GCP, and more)
