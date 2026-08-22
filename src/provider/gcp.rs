@@ -40,6 +40,7 @@ pub struct GCPProject {
     pub numeric_project_id: i64,
 }
 
+#[derive(Clone)]
 pub struct GCP {
     metadata: Option<GCPMetadata>,
     recursive: bool,

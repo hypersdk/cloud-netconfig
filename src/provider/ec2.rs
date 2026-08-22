@@ -21,6 +21,7 @@ pub struct EC2MacData {
     pub subnet_ipv4_cidr_block: String,
 }
 
+#[derive(Clone)]
 pub struct EC2 {
     system: HashMap<String, serde_json::Value>,
     network: HashMap<String, serde_json::Value>,

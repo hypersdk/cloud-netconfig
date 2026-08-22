@@ -57,6 +57,7 @@ pub struct AzureSubnet {
     pub prefix: String,
 }
 
+#[derive(Clone)]
 pub struct Azure {
     metadata: Option<AzureMetadata>,
     api_version: String,

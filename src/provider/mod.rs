@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: Apache-2.0
 
 mod azure;
@@ -27,6 +26,7 @@ pub trait CloudProvider: Send + Sync {
     async fn link_save_cloud_metadata(&self, env: &Environment) -> Result<()>;
 }
 
+#[derive(Clone)]
 pub enum Provider {
     Azure(Azure),
     Aws(EC2),
@@ -105,10 +105,13 @@ pub async fn acquire_cloud_metadata(env: &mut Environment) -> Result<()> {
 
 pub async fn configure_network_metadata(env: &mut Environment) -> Result<()> {
     let _lock = env.mutex.lock().unwrap();
-    match &env.provider {
-        Provider::Azure(azure) => azure_configure_network(azure, env).await,
-        Provider::Aws(ec2) => ec2_configure_network(ec2, env).await,
-        Provider::Gcp(gcp) => gcp_configure_network(gcp, env).await,
+    // Cloned so the match doesn't hold env.provider borrowed while the arms
+    // also need &mut env (env.provider aliases the whole env otherwise).
+    let provider = env.provider.clone();
+    match provider {
+        Provider::Azure(azure) => azure_configure_network(&azure, env).await,
+        Provider::Aws(ec2) => ec2_configure_network(&ec2, env).await,
+        Provider::Gcp(gcp) => gcp_configure_network(&gcp, env).await,
     }
 }
 
