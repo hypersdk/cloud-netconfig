@@ -103,7 +103,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Detected cloud environment: {}", kind);
 
     // Initialize provider environment
-    let mut env =
+    let env =
         provider::Environment::new(kind, &config).expect("Failed to initialize cloud provider");
 
     // Handle security and privilege dropping

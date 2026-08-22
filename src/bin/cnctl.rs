@@ -133,7 +133,7 @@ async fn show_network_status() -> anyhow::Result<()> {
     println!("Network Interfaces:");
     println!();
 
-    for (_, link) in &links.links_by_mac {
+    for link in links.links_by_mac.values() {
         println!("       Name: {}", link.name);
         println!("MAC Address: {}", link.mac);
         println!("      State: {}", link.oper_state);
