@@ -16,7 +16,6 @@ use crate::cloud::CloudProvider as CloudKind;
 use crate::network::{Links, Route, RoutingPolicyRule};
 use anyhow::Result;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
 
 #[async_trait::async_trait]
 pub trait CloudProvider: Send + Sync {
@@ -68,7 +67,6 @@ pub struct Environment {
     pub routes_by_index: HashMap<u32, Route>,
     pub routing_rules_by_address_from: HashMap<String, RoutingPolicyRule>,
     pub routing_rules_by_address_to: HashMap<String, RoutingPolicyRule>,
-    pub mutex: Arc<Mutex<()>>,
 }
 
 impl Environment {
@@ -89,14 +87,11 @@ impl Environment {
             routes_by_index: HashMap::new(),
             routing_rules_by_address_from: HashMap::new(),
             routing_rules_by_address_to: HashMap::new(),
-            mutex: Arc::new(Mutex::new(())),
         })
     }
 }
 
 pub async fn acquire_cloud_metadata(env: &mut Environment) -> Result<()> {
-    let _lock = env.mutex.lock().unwrap();
-
     env.links = crate::network::acquire_links().await?;
     env.provider.fetch_cloud_metadata().await?;
 
@@ -104,11 +99,6 @@ pub async fn acquire_cloud_metadata(env: &mut Environment) -> Result<()> {
 }
 
 pub async fn configure_network_metadata(env: &mut Environment) -> Result<()> {
-    // Clone the Arc first so the guard's lifetime is tied to this local
-    // handle, not to env itself — otherwise it aliases the &mut env the
-    // match arms below also need.
-    let mutex = env.mutex.clone();
-    let _lock = mutex.lock().unwrap();
     // Cloned so the match doesn't hold env.provider borrowed while the arms
     // also need &mut env (env.provider aliases the whole env otherwise).
     let provider = env.provider.clone();
