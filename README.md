@@ -98,6 +98,13 @@ Enable debug logging in the config file (`logging.level: debug`) when diagnosing
 
 ## Enterprise
 
+| | Community Edition (this repo) | Enterprise ([zyvor.dev](https://zyvor.dev/?utm_source=github&utm_medium=cloud-netconfig)) |
+|---|------------------------------|--------------------------------------------------------------------------------------------|
+| **Support** | [GitHub Issues](https://github.com/hypersdk/cloud-netconfig/issues) | SLA, [sales@zyvor.dev](mailto:sales@zyvor.dev), professional services |
+| **Scope** | Open-source daemon | Supported multi-cloud production rollouts |
+| **Features** | Multi-cloud metadata clients, event-driven reconfiguration, policy-based routing | Same codebase + fleet automation and rollout support |
+| **Platform** | cloud-netconfig | HyperSDK migration and operations suite |
+
 | | |
 |---|---|
 | **Demo** | [zyvor.dev/demo](https://zyvor.dev/demo?utm_source=github&utm_medium=cloud-netconfig) |
