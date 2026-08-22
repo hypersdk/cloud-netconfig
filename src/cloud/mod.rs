@@ -2,7 +2,7 @@
 
 use std::fs;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CloudProvider {
     None,
     Azure,
