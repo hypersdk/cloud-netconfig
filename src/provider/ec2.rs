@@ -24,8 +24,10 @@ pub struct EC2MacData {
 #[derive(Clone)]
 pub struct EC2 {
     system: HashMap<String, serde_json::Value>,
+    #[allow(dead_code)] // captured metadata, not yet consumed
     network: HashMap<String, serde_json::Value>,
     macs: HashMap<String, EC2MacData>,
+    #[allow(dead_code)] // captured metadata, not yet consumed
     imds_version: u8,
 }
 

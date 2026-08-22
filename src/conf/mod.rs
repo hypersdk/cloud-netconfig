@@ -14,7 +14,7 @@ pub const ROUTE_TABLE_BASE: u32 = 9999;
 
 pub const DEFAULT_HTTP_REQUEST_TIMEOUT: u64 = 10000;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct Config {
     pub logging: LoggingConfig,
@@ -36,7 +36,7 @@ pub struct LoggingConfig {
     pub timestamps: bool,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct ServerConfig {
     pub listen: ListenConfig,
@@ -73,7 +73,7 @@ pub struct RetryConfig {
     pub backoff: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct NetworkConfig {
     pub interfaces: InterfacesConfig,
@@ -82,7 +82,7 @@ pub struct NetworkConfig {
     pub mtu: MtuConfig,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct InterfacesConfig {
     pub enabled: Vec<String>,
@@ -173,21 +173,6 @@ pub struct FeaturesConfig {
 }
 
 // Default implementations
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            logging: LoggingConfig::default(),
-            server: ServerConfig::default(),
-            metadata: MetadataConfig::default(),
-            network: NetworkConfig::default(),
-            cloud: CloudConfig::default(),
-            security: SecurityConfig::default(),
-            state: StateConfig::default(),
-            features: FeaturesConfig::default(),
-        }
-    }
-}
-
 impl Default for LoggingConfig {
     fn default() -> Self {
         Self {
@@ -195,15 +180,6 @@ impl Default for LoggingConfig {
             format: "text".to_string(),
             file: None,
             timestamps: false,
-        }
-    }
-}
-
-impl Default for ServerConfig {
-    fn default() -> Self {
-        Self {
-            listen: ListenConfig::default(),
-            tls: None,
         }
     }
 }
@@ -233,26 +209,6 @@ impl Default for RetryConfig {
             enabled: true,
             max_attempts: 3,
             backoff: "5s".to_string(),
-        }
-    }
-}
-
-impl Default for NetworkConfig {
-    fn default() -> Self {
-        Self {
-            interfaces: InterfacesConfig::default(),
-            primary: PrimaryConfig::default(),
-            routing: RoutingConfig::default(),
-            mtu: MtuConfig::default(),
-        }
-    }
-}
-
-impl Default for InterfacesConfig {
-    fn default() -> Self {
-        Self {
-            enabled: Vec::new(),
-            patterns: Vec::new(),
         }
     }
 }

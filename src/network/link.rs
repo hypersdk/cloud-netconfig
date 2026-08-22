@@ -16,7 +16,7 @@ pub struct Link {
     pub addresses: Option<std::collections::HashMap<String, bool>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Links {
     pub links_by_mac: std::collections::HashMap<String, Link>,
 }

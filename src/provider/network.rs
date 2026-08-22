@@ -30,7 +30,7 @@ pub async fn configure_network(
     }
 
     // Configure addresses
-    for (addr, _) in &new_addresses {
+    for addr in new_addresses.keys() {
         network::address_set(&link.name, addr).await?;
         tracing::info!(
             "Successfully added address='{}' on link='{}' ifindex='{}'",
@@ -44,7 +44,7 @@ pub async fn configure_network(
     configure_route(env, link, gateway.as_deref()).await?;
 
     // Configure routing policy rules for each address
-    for (addr, _) in &new_addresses {
+    for addr in new_addresses.keys() {
         configure_routing_policy_rule(env, link, addr).await?;
     }
 
@@ -88,7 +88,7 @@ async fn configure_route(
         None => network::get_ipv4_gateway(link.ifindex).await?,
     };
 
-    let table = (env.route_table + link.ifindex + link.ifindex) as u32;
+    let table = env.route_table + link.ifindex + link.ifindex;
 
     let route = Route {
         table,
@@ -116,7 +116,7 @@ async fn configure_routing_policy_rule(
     address: &str,
 ) -> Result<()> {
     let ip_str = address.split('/').next().unwrap_or(address);
-    let table = (env.route_table + link.ifindex) as u32;
+    let table = env.route_table + link.ifindex;
 
     // Add "from" rule
     let from_rule = RoutingPolicyRule {
@@ -171,7 +171,7 @@ async fn remove_routing_policy_rule(
     }
 
     // Remove route if no more rules for this link
-    let table = (env.route_table + link.ifindex) as u32;
+    let table = env.route_table + link.ifindex;
     if is_rules_by_table_empty(env, table) {
         if let Some(route) = env.routes_by_index.remove(&link.ifindex) {
             network::route_remove(&route).await?;

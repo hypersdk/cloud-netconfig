@@ -43,6 +43,7 @@ pub struct GCPProject {
 #[derive(Clone)]
 pub struct GCP {
     metadata: Option<GCPMetadata>,
+    #[allow(dead_code)] // captured metadata, not yet consumed
     recursive: bool,
 }
 
