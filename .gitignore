@@ -22,3 +22,6 @@ Thumbs.db
 
 # Runtime
 /run/
+
+# Doc build tools (marked via ../ironwolf/.docs-tools or local npm install)
+.docs-tools/
