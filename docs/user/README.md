@@ -1,4 +1,4 @@
-# cloud-netconfig — Customer Documentation
+# cloud-netconfig — User Documentation
 
 Automatic network configuration for cloud VMs — secondary IPs, routing tables, and policy-based routing from Azure, AWS EC2, and GCP instance metadata.
 
@@ -13,12 +13,12 @@ Automatic network configuration for cloud VMs — secondary IPs, routing tables,
 ## Printable PDFs
 
 ```bash
-node scripts/customer-docs/build-customer-pdfs.mjs
+node scripts/user-docs/build-user-pdfs.mjs
 ```
 
 Output lands in [`pdf/`](pdf/):
 
-- `cloud-netconfig-Customer-README.pdf`
+- `cloud-netconfig-User-README.pdf`
 - `cloud-netconfig-Getting-Started.pdf`
 - `cloud-netconfig-Page-by-Page.pdf`
 - `cloud-netconfig-Admin-Basics.pdf`
